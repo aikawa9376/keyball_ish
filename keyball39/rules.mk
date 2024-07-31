@@ -36,7 +36,7 @@ SLEEP_LED_ENABLE = no       # Breathing sleep LED during USB suspend
 # SRC += lib/oledkit/oledkit.c    # OLED utility for Keyball series.
 
 # Include common library
-SRC += lib_ish/keyball/keyball.c
+SRC += lib/keyball/keyball.c
 
 # Disable other features to squeeze firmware size
 SPACE_CADET_ENABLE = no
