@@ -19,8 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #    include "transactions.h"
 #endif
 
-#include "drivers/pmw3360/pmw3360.h"
 #include "lib/keyball/keyball.h"
+#include "spi_master.c"
 
 const uint8_t CPI_DEFAULT    = KEYBALL_CPI_DEFAULT / 100;
 const uint8_t CPI_MAX        = pmw3360_MAXCPI + 1;
@@ -29,6 +29,8 @@ const uint8_t SCROLL_DIV_MAX = 7;
 static const char BL = '\xB0'; // Blank indicator character
 static const char LFSTR_ON[] PROGMEM = "\xB2\xB3";
 static const char LFSTR_OFF[] PROGMEM = "\xB4\xB5";
+
+static bool motion_bursting = false;
 
 uint16_t horizontal_flag = 0;
 
@@ -117,24 +119,40 @@ static void add_scroll_div(int8_t delta) {
     keyball_set_scroll_div(v < 1 ? 1 : v);
 }
 
+bool keyball_motion_burst(pmw33xx_report_t *d) {
+    // Start motion burst if motion burst mode is not started.
+    if (!motion_bursting) {
+        pmw33xx_write(0, pmw3360_Motion_Burst, 0);
+        motion_bursting = true;
+    }
+
+    spi_start(0, false, 3, PMW33XX_SPI_DIVISOR);
+    spi_write(pmw3360_Motion_Burst);
+    wait_us(35);
+    spi_read(); // skip MOT
+    spi_read(); // skip Observation
+    d->delta_x = spi_read();
+    d->delta_x |= spi_read() << 8;
+    d->delta_y = spi_read();
+    d->delta_y |= spi_read() << 8;
+    spi_stop();
+    // Required NCS in 500ns after motion burst.
+    wait_us(1);
+    return true;
+}
+
 //////////////////////////////////////////////////////////////////////////////
 // Pointing device driver
 
-#if KEYBALL_MODEL == 46
-void keyboard_pre_init_kb(void) {
-    keyball.this_have_ball = pmw3360_init();
-    keyboard_pre_init_user();
-}
-#endif
+void pointing_device_init_kb(void) {
+    keyball.this_have_ball = pmw33xx_init(0);
 
-void pointing_device_driver_init(void) {
-#if KEYBALL_MODEL != 46
-    keyball.this_have_ball = pmw3360_init();
-#endif
     if (keyball.this_have_ball) {
-        pmw3360_cpi_set(CPI_DEFAULT - 1);
-        pmw3360_reg_write(pmw3360_Motion_Burst, 0);
+        pmw33xx_set_cpi(0, CPI_DEFAULT - 1);
+        pmw33xx_write(0, pmw3360_Motion_Burst, 0);
     }
+
+    pointing_device_init_user();
 }
 
 uint16_t pointing_device_driver_get_cpi(void) {
@@ -170,15 +188,13 @@ static void motion_to_mouse_move(keyball_motion_t *m, report_mouse_t *r, bool is
 #if KEYBALL_MODEL == 61 || KEYBALL_MODEL == 39 || KEYBALL_MODEL == 147 || KEYBALL_MODEL == 44
     adjust_mouse_speed (m);
 
-    r->x = clip2int8(m->y);
-    r->y = clip2int8(m->x);
+    // TODO: ここはよく考える
+    r->x = clip2int8(m->x);
+    r->y = clip2int8(m->y);
     if (is_left) {
         r->x = -r->x;
         r->y = -r->y;
     }
-#elif KEYBALL_MODEL == 46
-    r->x = clip2int8(m->x);
-    r->y = -clip2int8(m->y);
 #else
 #    error("unknown Keyball model")
 #endif
@@ -208,25 +224,8 @@ static void motion_to_mouse_scroll(keyball_motion_t *m, report_mouse_t *r, bool 
     } else if (horizontal_flag == 2) {
         r->v = 0;
     }
-#elif KEYBALL_MODEL == 46
-    r->h = clip2int8(x);
-    r->v = clip2int8(y);
 #else
 #    error("unknown Keyball model")
-#endif
-
-#if KEYBALL_SCROLLSNAP_ENABLE
-    // scroll snap.
-    uint32_t now = timer_read32();
-    if (r->h != 0 || r->v != 0) {
-        keyball.scroll_snap_last = now;
-    } else if (TIMER_DIFF_32(now, keyball.scroll_snap_last) >= KEYBALL_SCROLLSNAP_RESET_TIMER) {
-        keyball.scroll_snap_tension_h = 0;
-    }
-    if (abs(keyball.scroll_snap_tension_h) < KEYBALL_SCROLLSNAP_TENSION_THRESHOLD) {
-        keyball.scroll_snap_tension_h += y;
-        r->h = 0;
-    }
 #endif
 }
 
@@ -259,14 +258,15 @@ static inline bool should_report(void) {
     return true;
 }
 
-report_mouse_t pointing_device_driver_get_report(report_mouse_t rep) {
+report_mouse_t pointing_device_task_kb(report_mouse_t rep) {
     // fetch from optical sensor.
     if (keyball.this_have_ball) {
-        pmw3360_motion_t d = {0};
-        if (pmw3360_motion_burst(&d)) {
+        // TODO: 酒のんでやったからよく考える
+        pmw33xx_report_t d = pmw33xx_read_burst(0);
+        if (keyball_motion_burst(&d)) {
             ATOMIC_BLOCK_FORCEON {
-                keyball.this_motion.x = add16(keyball.this_motion.x, d.x);
-                keyball.this_motion.y = add16(keyball.this_motion.y, d.y);
+                keyball.this_motion.x = add16(keyball.this_motion.x, d.delta_x);
+                keyball.this_motion.y = add16(keyball.this_motion.y, d.delta_y);
             }
         }
     }
@@ -276,9 +276,9 @@ report_mouse_t pointing_device_driver_get_report(report_mouse_t rep) {
         motion_to_mouse(&keyball.this_motion, &rep, is_keyboard_left(), keyball.scroll_mode);
         motion_to_mouse(&keyball.that_motion, &rep, !is_keyboard_left(), keyball.scroll_mode ^ keyball.this_have_ball);
         // store mouse report for OLED.
-        keyball.last_mouse = rep;
+        /* keyball.last_mouse = rep; */
     }
-    return rep;
+    return pointing_device_task_user(rep);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -533,8 +533,8 @@ void keyball_set_cpi(uint8_t cpi) {
     keyball.cpi_value   = cpi;
     keyball.cpi_changed = true;
     if (keyball.this_have_ball) {
-        pmw33xx_set_cpi(keyball.this_have_ball, cpi == 0 ? CPI_DEFAULT - 1 : cpi - 1);
-        pmw33xx_write(keyball.this_have_ball, pmw3360_Motion_Burst, 0);
+        pmw33xx_set_cpi(0, cpi == 0 ? CPI_DEFAULT - 1 : cpi - 1);
+        pmw33xx_write(0, pmw3360_Motion_Burst, 0);
     }
 }
 

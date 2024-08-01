@@ -16,6 +16,7 @@ SPLIT_KEYBOARD = yes
 # Optical sensor driver for trackball.
 POINTING_DEVICE_ENABLE = yes # Enable trackball
 POINTING_DEVICE_DRIVER = pmw3360
+QUANTUM_LIB_SRC += spi_master.c # Optical sensor use SPI to communicate
 
 SERIAL_DRIVER = vendor
 WS2812_DRIVER = vendor
