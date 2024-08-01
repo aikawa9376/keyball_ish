@@ -533,8 +533,8 @@ void keyball_set_cpi(uint8_t cpi) {
     keyball.cpi_value   = cpi;
     keyball.cpi_changed = true;
     if (keyball.this_have_ball) {
-        pmw3360_cpi_set(cpi == 0 ? CPI_DEFAULT - 1 : cpi - 1);
-        pmw3360_reg_write(pmw3360_Motion_Burst, 0);
+        pmw33xx_set_cpi(keyball.this_have_ball, cpi == 0 ? CPI_DEFAULT - 1 : cpi - 1);
+        pmw33xx_write(keyball.this_have_ball, pmw3360_Motion_Burst, 0);
     }
 }
 
