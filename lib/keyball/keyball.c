@@ -11,7 +11,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 #include QMK_KEYBOARD_H
 
@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "lib/keyball/keyball.h"
 #include "spi_master.c"
 
-const uint8_t CPI_DEFAULT    = KEYBALL_CPI_DEFAULT / 100;
+const uint16_t CPI_DEFAULT   = KEYBALL_CPI_DEFAULT;
 const uint8_t CPI_MAX        = pmw3360_MAXCPI + 1;
 const uint8_t SCROLL_DIV_MAX = 7;
 
@@ -119,7 +119,7 @@ static void add_scroll_div(int8_t delta) {
     keyball_set_scroll_div(v < 1 ? 1 : v);
 }
 
-bool keyball_motion_burst(pmw33xx_report_t *d) {
+bool keyball_motion_burst(pmw3360_motion_t *d) {
     // Start motion burst if motion burst mode is not started.
     if (!motion_bursting) {
         pmw33xx_write(0, pmw3360_Motion_Burst, 0);
@@ -131,10 +131,10 @@ bool keyball_motion_burst(pmw33xx_report_t *d) {
     wait_us(35);
     spi_read(); // skip MOT
     spi_read(); // skip Observation
-    d->delta_x = spi_read();
-    d->delta_x |= spi_read() << 8;
-    d->delta_y = spi_read();
-    d->delta_y |= spi_read() << 8;
+    d->x = spi_read();
+    d->x |= spi_read() << 8;
+    d->y = spi_read();
+    d->y |= spi_read() << 8;
     spi_stop();
     // Required NCS in 500ns after motion burst.
     wait_us(1);
@@ -148,11 +148,11 @@ void pointing_device_init_kb(void) {
     keyball.this_have_ball = pmw33xx_init(0);
 
     if (keyball.this_have_ball) {
-        pmw33xx_set_cpi(0, CPI_DEFAULT - 1);
+        pmw33xx_set_cpi(0, CPI_DEFAULT);
         pmw33xx_write(0, pmw3360_Motion_Burst, 0);
-    }
 
-    pointing_device_init_user();
+        pointing_device_init_user();
+    }
 }
 
 uint16_t pointing_device_driver_get_cpi(void) {
@@ -196,7 +196,7 @@ static void motion_to_mouse_move(keyball_motion_t *m, report_mouse_t *r, bool is
         r->y = -r->y;
     }
 #else
-#    error("unknown Keyball model")
+    #    error("unknown Keyball model")
 #endif
     // clear motion
     m->x = 0;
@@ -225,7 +225,7 @@ static void motion_to_mouse_scroll(keyball_motion_t *m, report_mouse_t *r, bool 
         r->v = 0;
     }
 #else
-#    error("unknown Keyball model")
+    #    error("unknown Keyball model")
 #endif
 }
 
@@ -261,12 +261,12 @@ static inline bool should_report(void) {
 report_mouse_t pointing_device_task_kb(report_mouse_t rep) {
     // fetch from optical sensor.
     if (keyball.this_have_ball) {
-        // TODO: 酒のんでやったからよく考える
-        pmw33xx_report_t d = pmw33xx_read_burst(0);
+        pmw3360_motion_t d = {0};
+        // MEMO: たぶんここはpointing_device_task_userがやってくれている
         if (keyball_motion_burst(&d)) {
             ATOMIC_BLOCK_FORCEON {
-                keyball.this_motion.x = add16(keyball.this_motion.x, d.delta_x);
-                keyball.this_motion.y = add16(keyball.this_motion.y, d.delta_y);
+                keyball.this_motion.x = d.x;
+                keyball.this_motion.y = d.y;
             }
         }
     }
@@ -319,13 +319,13 @@ static void rpc_get_info_invoke(void) {
     // split keyboard negotiation completed.
 
 #    ifdef VIA_ENABLE
-    // adjust VIA layout options according to current combination.
-    uint8_t  layouts = (keyball.this_have_ball ? (is_keyboard_left() ? 0x02 : 0x01) : 0x00) | (keyball.that_have_ball ? (is_keyboard_left() ? 0x01 : 0x02) : 0x00);
-    uint32_t curr    = via_get_layout_options();
-    uint32_t next    = (curr & ~0x3) | layouts;
-    if (next != curr) {
-        via_set_layout_options(next);
-    }
+// adjust VIA layout options according to current combination.
+uint8_t  layouts = (keyball.this_have_ball ? (is_keyboard_left() ? 0x02 : 0x01) : 0x00) | (keyball.that_have_ball ? (is_keyboard_left() ? 0x01 : 0x02) : 0x00);
+uint32_t curr    = via_get_layout_options();
+uint32_t next    = (curr & ~0x3) | layouts;
+if (next != curr) {
+    via_set_layout_options(next);
+}
 #    endif
 
     keyball_on_adjust_layout(KEYBALL_ADJUST_PRIMARY);
@@ -388,35 +388,35 @@ const char PROGMEM code_to_name[] = {
 
 void keyball_oled_render_ballinfo(void) {
 #ifdef OLED_ENABLE
-    // Format: `Ball:{mouse x}{mouse y}{mouse h}{mouse v}`
-    //
-    // Output example:
-    //
-    //     Ball: -12  34   0   0
+// Format: `Ball:{mouse x}{mouse y}{mouse h}{mouse v}`
+//
+// Output example:
+//
+//     Ball: -12  34   0   0
 
-    // 1st line, "Ball" label, mouse x, y, h, and v.
-    oled_write_P(PSTR("Ball\xB1"), false);
-    oled_write(format_4d(keyball.last_mouse.x), false);
-    oled_write(format_4d(keyball.last_mouse.y), false);
-    oled_write(format_4d(keyball.last_mouse.h), false);
-    oled_write(format_4d(keyball.last_mouse.v), false);
+// 1st line, "Ball" label, mouse x, y, h, and v.
+oled_write_P(PSTR("Ball\xB1"), false);
+oled_write(format_4d(keyball.last_mouse.x), false);
+oled_write(format_4d(keyball.last_mouse.y), false);
+oled_write(format_4d(keyball.last_mouse.h), false);
+oled_write(format_4d(keyball.last_mouse.v), false);
 
-    // 2nd line, empty label and CPI
-    oled_write_P(PSTR("    \xB1\xBC\xBD"), false);
-    oled_write(format_4d(keyball_get_cpi()) + 1, false);
-    oled_write_P(PSTR("00 "), false);
+// 2nd line, empty label and CPI
+oled_write_P(PSTR("    \xB1\xBC\xBD"), false);
+oled_write(format_4d(keyball_get_cpi()) + 1, false);
+oled_write_P(PSTR("00 "), false);
 
-    // indicate scroll mode: on/off
-    oled_write_P(PSTR("\xBE\xBF"), false);
-    if (keyball.scroll_mode) {
-        oled_write_P(LFSTR_ON, false);
-    } else {
-        oled_write_P(LFSTR_OFF, false);
-    }
+// indicate scroll mode: on/off
+oled_write_P(PSTR("\xBE\xBF"), false);
+if (keyball.scroll_mode) {
+    oled_write_P(LFSTR_ON, false);
+} else {
+    oled_write_P(LFSTR_OFF, false);
+}
 
-    // indicate scroll divider:
-    oled_write_P(PSTR(" \xC0\xC1"), false);
-    oled_write_char('0' + keyball_get_scroll_div(), false);
+// indicate scroll divider:
+oled_write_P(PSTR(" \xC0\xC1"), false);
+oled_write_char('0' + keyball_get_scroll_div(), false);
 #endif
 }
 
@@ -427,66 +427,66 @@ void keyball_oled_render_ballsubinfo(void) {
 
 void keyball_oled_render_keyinfo(void) {
 #ifdef OLED_ENABLE
-    // Format: `Key :  R{row}  C{col} K{kc} {name}{name}{name}`
-    //
-    // Where `kc` is lower 8 bit of keycode.
-    // Where `name`s are readable labels for pressing keys, valid between 4 and 56.
-    //
-    // `row`, `col`, and `kc` indicates the last processed key,
-    // but `name`s indicate unreleased keys in best effort.
-    //
-    // It is aligned to fit with output of keyball_oled_render_ballinfo().
-    // For example:
-    //
-    //     Key :  R2  C3 K06 abc
-    //     Ball:   0   0   0   0
+// Format: `Key :  R{row}  C{col} K{kc} {name}{name}{name}`
+//
+// Where `kc` is lower 8 bit of keycode.
+// Where `name`s are readable labels for pressing keys, valid between 4 and 56.
+//
+// `row`, `col`, and `kc` indicates the last processed key,
+// but `name`s indicate unreleased keys in best effort.
+//
+// It is aligned to fit with output of keyball_oled_render_ballinfo().
+// For example:
+//
+//     Key :  R2  C3 K06 abc
+//     Ball:   0   0   0   0
 
-    // "Key" Label
-    oled_write_P(PSTR("Key \xB1"), false);
+// "Key" Label
+oled_write_P(PSTR("Key \xB1"), false);
 
-    // Row and column
-    oled_write_char('\xB8', false);
-    oled_write_char(to_1x(keyball.last_pos.row), false);
-    oled_write_char('\xB9', false);
-    oled_write_char(to_1x(keyball.last_pos.col), false);
+// Row and column
+oled_write_char('\xB8', false);
+oled_write_char(to_1x(keyball.last_pos.row), false);
+oled_write_char('\xB9', false);
+oled_write_char(to_1x(keyball.last_pos.col), false);
 
-    // Keycode
-    oled_write_P(PSTR("\xBA\xBB"), false);
-    oled_write_char(to_1x(keyball.last_kc >> 4), false);
-    oled_write_char(to_1x(keyball.last_kc), false);
+// Keycode
+oled_write_P(PSTR("\xBA\xBB"), false);
+oled_write_char(to_1x(keyball.last_kc >> 4), false);
+oled_write_char(to_1x(keyball.last_kc), false);
 
-    // Pressing keys
-    oled_write_P(PSTR("  "), false);
-    oled_write(keyball.pressing_keys, false);
+// Pressing keys
+oled_write_P(PSTR("  "), false);
+oled_write(keyball.pressing_keys, false);
 #endif
 }
 
 void keyball_oled_render_layerinfo(void) {
 #ifdef OLED_ENABLE
-    // Format: `Layer:{layer state}`
-    //
-    // Output example:
-    //
-    //     Layer:-23------------
-    //
-    oled_write_P(PSTR("L\xB6\xB7r\xB1"), false);
-    for (uint8_t i = 1; i < 8; i++) {
-        oled_write_char((layer_state_is(i) ? to_1x(i) : BL), false);
-    }
-    oled_write_char(' ', false);
+// Format: `Layer:{layer state}`
+//
+// Output example:
+//
+//     Layer:-23------------
+//
+oled_write_P(PSTR("L\xB6\xB7r\xB1"), false);
+for (uint8_t i = 1; i < 8; i++) {
+    oled_write_char((layer_state_is(i) ? to_1x(i) : BL), false);
+}
+oled_write_char(' ', false);
 
 #    ifdef POINTING_DEVICE_AUTO_MOUSE_ENABLE
-    oled_write_P(PSTR("\xC2\xC3"), false);
-    if (get_auto_mouse_enable()) {
-        oled_write_P(LFSTR_ON, false);
-    } else {
-        oled_write_P(LFSTR_OFF, false);
-    }
+oled_write_P(PSTR("\xC2\xC3"), false);
+if (get_auto_mouse_enable()) {
+    oled_write_P(LFSTR_ON, false);
+} else {
+    oled_write_P(LFSTR_OFF, false);
+}
 
-    oled_write(format_4d(get_auto_mouse_timeout() / 10) + 1, false);
-    oled_write_char('0', false);
+oled_write(format_4d(get_auto_mouse_timeout() / 10) + 1, false);
+oled_write_char('0', false);
 #    else
-    oled_write_P(PSTR("\xC2\xC3\xB4\xB5 ---"), false);
+oled_write_P(PSTR("\xC2\xC3\xB4\xB5 ---"), false);
 #    endif
 #endif
 }
@@ -526,14 +526,14 @@ uint8_t keyball_get_cpi(void) {
     return keyball.cpi_value == 0 ? CPI_DEFAULT : keyball.cpi_value;
 }
 
-void keyball_set_cpi(uint8_t cpi) {
+void keyball_set_cpi(uint16_t cpi) {
     if (cpi > CPI_MAX) {
         cpi = CPI_MAX;
     }
     keyball.cpi_value   = cpi;
     keyball.cpi_changed = true;
     if (keyball.this_have_ball) {
-        pmw33xx_set_cpi(0, cpi == 0 ? CPI_DEFAULT - 1 : cpi - 1);
+        pmw33xx_set_cpi(0, cpi == 0 ? CPI_DEFAULT : cpi);
         pmw33xx_write(0, pmw3360_Motion_Burst, 0);
     }
 }
@@ -543,12 +543,12 @@ void keyball_set_cpi(uint8_t cpi) {
 
 void keyboard_post_init_kb(void) {
 #ifdef SPLIT_KEYBOARD
-    // register transaction handlers on secondary.
-    if (!is_keyboard_master()) {
-        transaction_register_rpc(KEYBALL_GET_INFO, rpc_get_info_handler);
-        transaction_register_rpc(KEYBALL_GET_MOTION, rpc_get_motion_handler);
-        transaction_register_rpc(KEYBALL_SET_CPI, rpc_set_cpi_handler);
-    }
+// register transaction handlers on secondary.
+if (!is_keyboard_master()) {
+    transaction_register_rpc(KEYBALL_GET_INFO, rpc_get_info_handler);
+    transaction_register_rpc(KEYBALL_GET_MOTION, rpc_get_motion_handler);
+    transaction_register_rpc(KEYBALL_SET_CPI, rpc_set_cpi_handler);
+}
 #endif
 
     // read keyball configuration from EEPROM
@@ -590,14 +590,14 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
 
     switch (keycode) {
 #ifndef MOUSEKEY_ENABLE
-        // process KC_MS_BTN1~8 by myself
-        // See process_action() in quantum/action.c for details.
-        case KC_MS_BTN1 ... KC_MS_BTN8: {
-            extern void register_mouse(uint8_t mouse_keycode, bool pressed);
-            register_mouse(keycode, record->event.pressed);
-            // to apply QK_MODS actions, allow to process others.
-            return true;
-        }
+// process KC_MS_BTN1~8 by myself
+// See process_action() in quantum/action.c for details.
+case KC_MS_BTN1 ... KC_MS_BTN8: {
+    extern void register_mouse(uint8_t mouse_keycode, bool pressed);
+    register_mouse(keycode, record->event.pressed);
+    // to apply QK_MODS actions, allow to process others.
+    return true;
+}
 #endif
 
         case SCRL_MO:

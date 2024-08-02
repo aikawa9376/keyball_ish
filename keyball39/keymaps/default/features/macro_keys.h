@@ -130,7 +130,7 @@ void disable_click_layer_all_state(void) {
     horizontal_flag = 0;
     disable_click_layer();
     keyball_set_scroll_mode(false);
-    keyball_set_cpi(KEYBALL_CPI_DEFAULT / 100);
+    keyball_set_cpi(KEYBALL_CPI_DEFAULT);
     unregister_code(KC_MS_BTN2);
     unregister_code(KC_RALT);
     unregister_code(KC_MS_BTN1);
@@ -315,12 +315,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             if (click_layer && get_highest_layer(layer_state) == click_layer) {
                 keyball_set_scroll_mode(record->event.pressed);
                 if (record->event.pressed) {
-                    keyball_set_cpi(4);
+                    keyball_set_cpi(400);
                     horizontal_flag = 1;
                     register_code(KC_MS_BTN2);
                     state = CLICKING;
                 } else {
-                    keyball_set_cpi(KEYBALL_CPI_DEFAULT / 100);
+                    keyball_set_cpi(KEYBALL_CPI_DEFAULT);
                     horizontal_flag = 0;
                     unregister_code(KC_MS_BTN2);
                     state = CLICKED;
@@ -336,13 +336,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 if (record->event.pressed) {
                     scroll_convert_flag = true;
                     horizontal_flag = 1;
-                    keyball_set_cpi(2);
+                    keyball_set_cpi(200);
                     register_code(KC_RALT);
                     state = CLICKING;
                 } else {
                     scroll_convert_flag = false;
                     horizontal_flag = 0;
-                    keyball_set_cpi(KEYBALL_CPI_DEFAULT / 100);
+                    keyball_set_cpi(KEYBALL_CPI_DEFAULT);
                     unregister_code(KC_RALT);
                     state = CLICKED;
                 }

@@ -244,4 +244,4 @@ void keyball_set_scroll_div(uint8_t div);
 uint8_t keyball_get_cpi(void);
 
 // TODO: document
-void keyball_set_cpi(uint8_t cpi);
+void keyball_set_cpi(uint16_t cpi);

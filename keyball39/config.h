@@ -40,8 +40,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define PMW33XX_CS_PIN GP21
 #define PMW3360_CS_PIN GP21
 
-// #define POINTING_DEVICE_INVERT_X
-// #define POINTING_DEVICE_ROTATION_90
+#define POINTING_DEVICE_INVERT_X
+#define POINTING_DEVICE_ROTATION_90
+#define POINTING_DEVICE_GESTURES_CURSOR_GLIDE_ENABLE
 
 // Split parameters
 #define SPLIT_HAND_MATRIX_GRID  GP27, GP9
