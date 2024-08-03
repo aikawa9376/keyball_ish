@@ -42,7 +42,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define POINTING_DEVICE_INVERT_X
 #define POINTING_DEVICE_ROTATION_90
-#define POINTING_DEVICE_GESTURES_CURSOR_GLIDE_ENABLE
+// #define POINTING_DEVICE_GESTURES_CURSOR_GLIDE_ENABLE
 
 // Split parameters
 #define SPLIT_HAND_MATRIX_GRID  GP27, GP9
