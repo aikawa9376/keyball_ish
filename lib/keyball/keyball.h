@@ -156,6 +156,11 @@ typedef struct {
     uint8_t ballcnt; // count of balls: support only 0 or 1, for now
 } keyball_info_t;
 
+typedef struct {
+    float h;
+    float v;
+} keyball_scroll_b;
+
 typedef uint8_t keyball_cpi_t;
 
 typedef struct {
@@ -176,6 +181,8 @@ typedef struct {
     uint16_t       last_kc;
     keypos_t       last_pos;
     report_mouse_t last_mouse;
+
+    keyball_scroll_b scroll_buffer;
 
     // Buffer to indicate pressing keys.
     char pressing_keys[KEYBALL_OLED_MAX_PRESSING_KEYCODES + 1];

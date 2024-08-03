@@ -44,6 +44,8 @@ keyball_t keyball = {
     .scroll_div  = 0,
 
     .pressing_keys = { BL, BL, BL, BL, BL, BL, 0 },
+
+    .scroll_buffer = {0},
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -155,15 +157,17 @@ static void motion_to_mouse_move(report_mouse_t *r, bool is_left) {
 
 static void motion_to_mouse_scroll(report_mouse_t *r, bool is_left) {
     // consume motion of trackball.
-    uint8_t div = keyball_get_scroll_div() - 1;
+    int16_t div = 1 << (keyball_get_scroll_div() - 1);
 
-    int16_t x = (float)r->x / div;
-    int16_t y = (float)r->y / div;
+    keyball.scroll_buffer.h += (float)r->x / div;
+    keyball.scroll_buffer.v += (float)r->y / div;
+    /* int16_t x = (float)r->x / div; */
+    /* int16_t y = (float)r->y / div; */
 
     // apply to mouse report.
 #if KEYBALL_MODEL == 61 || KEYBALL_MODEL == 39 || KEYBALL_MODEL == 147 || KEYBALL_MODEL == 44
-    r->h = clip2int8(x);
-    r->v = clip2int8(y);
+    r->h = clip2int8(keyball.scroll_buffer.h);
+    r->v = clip2int8(keyball.scroll_buffer.v);
     if (is_left) {
         r->h = -r->h;
         r->v = -r->v;
@@ -173,11 +177,15 @@ static void motion_to_mouse_scroll(report_mouse_t *r, bool is_left) {
     } else if (horizontal_flag == 2) {
         r->v = 0;
     }
+
+    keyball.scroll_buffer.h -= clip2int8(keyball.scroll_buffer.h);
+    keyball.scroll_buffer.v -= clip2int8(keyball.scroll_buffer.v);
+
+    r->x = 0;
+    r->y = 0;
 #else
     #    error("unknown Keyball model")
 #endif
-    r->x = 0;
-    r->y = 0;
 }
 
 static void motion_to_mouse(report_mouse_t *r, bool is_left, bool as_scroll) {
