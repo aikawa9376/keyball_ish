@@ -76,13 +76,13 @@ void click_and_wait_mouse_button1(uint16_t wait_time) {
 // マウスのボタン1をダブルクリックする関数
 void double_click_mouse_button1(void) {
   for (int i = 0; i < 2; i++) {
-    click_and_wait_mouse_button1(25);
+    click_and_wait_mouse_button1(30);
   }
 }
 
 // マウスのボタン1をダブルクリックする関数
 void triple_click_mouse_button1(void) {
   for (int i = 0; i < 3; i++) {
-    click_and_wait_mouse_button1(25);
+    click_and_wait_mouse_button1(30);
   }
 }

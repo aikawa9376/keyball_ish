@@ -123,18 +123,18 @@ static void adjust_mouse_speed (report_mouse_t *m) {
     int16_t movement_size = abs(m->x) + abs(m->y);
     float speed_multiplier = 1.0; // EDGE
 
-    if (movement_size > 300){
+    if (movement_size > 30){
         speed_multiplier = 2.0;
-    } else if (movement_size > 150) {
+    } else if (movement_size > 15) {
         speed_multiplier = 1.5;
-    } else if (movement_size > 40) {
+    } else if (movement_size > 8) {
         speed_multiplier = 1.0;
-    } else if (movement_size > 35) {
+    } else if (movement_size > 5) {
         speed_multiplier = 0.9;
-    } else if (movement_size > 25) {
-        speed_multiplier = 0.7;
+    } else if (movement_size > 3) {
+        speed_multiplier = 0.6;
     } else if (movement_size > 1) {
-        speed_multiplier = 0.4;
+        speed_multiplier = 0.5;
     }
     m->x = clip2int8((int16_t) (m->x * speed_multiplier));
     m->y = clip2int8((int16_t) (m->y * speed_multiplier));
@@ -160,9 +160,7 @@ static void motion_to_mouse_scroll(report_mouse_t *r, bool is_left) {
     int16_t div = 1 << (keyball_get_scroll_div() - 1);
 
     keyball.scroll_buffer.h += (float)r->x / div;
-    keyball.scroll_buffer.v += (float)r->y / div;
-    /* int16_t x = (float)r->x / div; */
-    /* int16_t y = (float)r->y / div; */
+    keyball.scroll_buffer.v -= (float)r->y / div;
 
     // apply to mouse report.
 #if KEYBALL_MODEL == 61 || KEYBALL_MODEL == 39 || KEYBALL_MODEL == 147 || KEYBALL_MODEL == 44
