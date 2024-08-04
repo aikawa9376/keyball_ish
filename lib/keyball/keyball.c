@@ -20,7 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 #include "lib/keyball/keyball.h"
-#include "spi_master.c"
 
 const uint16_t CPI_DEFAULT   = KEYBALL_CPI_DEFAULT;
 const uint16_t CPI_MAX       = 12000;

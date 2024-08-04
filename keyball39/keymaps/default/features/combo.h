@@ -24,7 +24,7 @@ enum combos {
 
 const uint16_t PROGMEM space_combo[] = {KC_J, KC_K, COMBO_END};
 const uint16_t PROGMEM enter_combo[] = {KC_D, LT(4, KC_F), COMBO_END};
-const uint16_t PROGMEM imeon_combo[] = {KC_C, LCTL_T(KC_V), COMBO_END};
+const uint16_t PROGMEM imeon_combo[] = {KC_C, KC_V, COMBO_END};
 const uint16_t PROGMEM escape_combo[] = {LT(4, KC_F), KC_J, COMBO_END};
 // const uint16_t PROGMEM rctrl_combo[] = {KC_J, KC_K, KC_L, COMBO_END};
 const uint16_t PROGMEM rctrl_combo[] = {KC_J, KC_K, KC_L, COMBO_END};
@@ -33,7 +33,7 @@ const uint16_t PROGMEM spacem_combo[] = {KC_OG_BTN1, KC_OG_BTN2, COMBO_END};
 const uint16_t PROGMEM imeonm_combo[] = {KC_OG_BTN4, KC_OG_BTN5, COMBO_END};
 
 // test
-const uint16_t PROGMEM stogg_combo[] = {SFT_T(KC_Z), SFT_T(KC_SLSH), COMBO_END};
+const uint16_t PROGMEM stogg_combo[] = {KC_Z, KC_SLSH, COMBO_END};
 const uint16_t PROGMEM altsp_combo[] = {KC_K, KC_L, COMBO_END};
 const uint16_t PROGMEM altsq_combo[] = {KC_D, KC_S, COMBO_END};
 
