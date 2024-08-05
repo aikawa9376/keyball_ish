@@ -36,9 +36,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
 
     [1] = LAYOUT_universal(
-        KC_EXLM  , KC_AT    , KC_HASH  , KC_DLR   , KC_PERC  ,                            KC_CIRC  , KC_AMPR  , KC_UNDS  , KC_EQL   , KC_BSLS  ,
+        KC_EXLM  , KC_AT    , KC_HASH  , KC_DLR   , KC_PERC  ,                            KC_EXLM  , KC_AMPR  , KC_UNDS  , KC_EQL   , KC_BSLS  ,
         KC_LPRN  , KC_RPRN  , KC_LBRC  , KC_RBRC  , KC_PIPE  ,                            KC_LABK  , KC_RABK  , KC_GRV   , KC_DQT   , KC_QUOT  ,
-        KC_LCBR  , KC_RCBR  , C(KC_C)  , G(KC_V)  , G(KC_SPC),                            KC_PLUS  , KC_MINS  , KC_PGDN  , KC_PGUP  , KC_TILD  ,
+        KC_LCBR  , KC_RCBR  , C(KC_C)  , G(KC_V)  , G(KC_SPC),                            KC_QUES  , KC_MINS  , KC_PGDN  , KC_PGUP  , KC_TILD  ,
         _______  , _______  , _______  , MC_TMCP  , MC_TMUX  , _______  ,      KC_LCBR ,  KC_RCBR  , _______  , _______  , _______  , _______
     ),
 
@@ -73,7 +73,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [6] = LAYOUT_universal(
         KC_CIRC  , KC_AMPR  , KC_UNDS  , KC_EQL   , KC_BSLS  ,                            KC_CIRC  , KC_AMPR  , KC_UNDS  , KC_EQL   , KC_BSLS  ,
         KC_ASTR  , KC_SLSH  , KC_GRV   , KC_DQT   , KC_QUOT  ,                            KC_LABK  , KC_RABK  , KC_GRV   , KC_DQT   , KC_QUOT  ,
-        KC_PLUS  , KC_MINS  , KC_PGDN  , KC_PGUP  , KC_TILD  ,                            KC_PLUS  , KC_MINS  , KC_PGDN  , KC_PGUP  , KC_TILD  ,
+        KC_PLUS  , KC_MINS  , KC_PGUP  , KC_PGDN  , KC_TILD  ,                            KC_PLUS  , KC_MINS  , KC_PGDN  , KC_PGUP  , KC_TILD  ,
         _______  , _______  , _______  , _______  , _______  , _______  ,      _______ ,  _______  , _______  , _______  , _______  , _______
     ),
 
