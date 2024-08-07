@@ -3,6 +3,13 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
         case SCRL_HO:
         case SCRL_VR:
             return 0;
+        case TD(TD_QUOT):
+        case TD(TD_LBRC):
+        case TD(TD_LCBR):
+            return 130;
+        case TD(TD_UNDS):
+        case TD(TD_LPRN):
+            return 170;
         default:
             return TAPPING_TERM;
     }
@@ -29,14 +36,5 @@ bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
     default:
       // Do not select the hold action when another key is tapped.
       return false;
-  }
-}
-
-uint16_t get_quick_tap_term(uint16_t keycode, keyrecord_t *record) {
-  switch (keycode) {
-    case LCTL_T(KC_ESC):
-      return 0;
-    default:
-      return QUICK_TAP_TERM;
   }
 }

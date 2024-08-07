@@ -23,23 +23,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "features/one_tap_multi_click.h"
 #include "features/macro_keys.h"
 #include "features/combo.h"
+#include "features/tap_dance.h"
 #include "features/tap_hold.h"
 
 // clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     // keymap for default
     [0] = LAYOUT_universal(
-        KC_Q       , KC_W    , KC_E    , KC_R        , KC_T    ,                       KC_Y         , KC_U    , KC_I    , KC_O    , KC_P    ,
-        KC_A       , KC_S    , KC_D    , LT(4, KC_F) , KC_G    ,                       KC_H         , KC_J    , KC_K    , KC_L    , LT(1, KC_SCLN) ,
-        KC_Z       , KC_X    , KC_C    , KC_V        , KC_B    ,                       KC_N         , KC_M    , KC_COMM , KC_DOT  , LT(6, KC_SLSH) ,
-        KC_LGUI    , KC_LALT , MO(3)   , KC_LALT     , MC_ESC  , MO(3),         MO(2), SFT_T(KC_SPC), _______ , _______ , _______ , KC_RSFT
+        KC_Q       , KC_W    , KC_E    , KC_R        , KC_T    ,                       KC_Y   , KC_U     , KC_I    , KC_O    , KC_P    ,
+        KC_A       , KC_S    , KC_D    , LT(4, KC_F) , KC_G    ,                       KC_H   , KC_J     , KC_K    , KC_L    , LT(1, KC_SCLN) ,
+        KC_Z       , KC_X    , KC_C    , KC_V        , KC_B    ,                       KC_N   , KC_M     , KC_COMM , KC_DOT  , LT(6, KC_SLSH) ,
+        KC_LGUI    , KC_LALT , MO(3)   , KC_LALT     , MC_ESC  , KC_LSFT,       MO(2), MC_ESC ,  _______ , _______ , _______ , KC_RSFT
     ),
 
     [1] = LAYOUT_universal(
-        KC_EXLM  , KC_AT    , KC_HASH  , KC_DLR   , KC_PERC  ,                            KC_EXLM  , KC_AMPR  , KC_UNDS  , KC_EQL   , KC_BSLS  ,
-        KC_LPRN  , KC_RPRN  , KC_LBRC  , KC_RBRC  , KC_PIPE  ,                            KC_LABK  , KC_RABK  , KC_GRV   , KC_DQT   , KC_QUOT  ,
-        KC_LCBR  , KC_RCBR  , C(KC_C)  , G(KC_V)  , G(KC_SPC),                            KC_QUES  , KC_MINS  , KC_PGDN  , KC_PGUP  , KC_TILD  ,
-        _______  , _______  , _______  , MC_TMCP  , MC_TMUX  , _______  ,      KC_LCBR ,  KC_RCBR  , _______  , _______  , _______  , _______
+        KC_EXLM    , KC_AT    , KC_HASH    , KC_DLR   , KC_PERC  ,                            KC_CIRC  , KC_AMPR  , TD(TD_UNDS), KC_EQL     , KC_BSLS  ,
+        TD(TD_LPRN), KC_RPRN  , TD(TD_LBRC), KC_RBRC  , KC_PIPE  ,                            KC_ASTR  , KC_SLSH  , KC_DQT     , TD(TD_QUOT), KC_GRV   ,
+        TD(TD_LCBR), KC_RCBR  , C(KC_C)    , G(KC_V)  , G(KC_SPC),                            KC_PLUS  , KC_MINS  , KC_TILD    , KC_BSLS    , KC_TILD  ,
+        _______    , _______  , _______    , KC_PGUP  , KC_PGDN  , _______  ,      KC_LCBR ,  KC_RCBR  , _______  , _______    , _______    , _______
     ),
 
     [2] = LAYOUT_universal(
@@ -73,7 +74,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [6] = LAYOUT_universal(
         KC_CIRC  , KC_AMPR  , KC_UNDS  , KC_EQL   , KC_BSLS  ,                            KC_CIRC  , KC_AMPR  , KC_UNDS  , KC_EQL   , KC_BSLS  ,
         KC_ASTR  , KC_SLSH  , KC_GRV   , KC_DQT   , KC_QUOT  ,                            KC_LABK  , KC_RABK  , KC_GRV   , KC_DQT   , KC_QUOT  ,
-        KC_PLUS  , KC_MINS  , KC_PGUP  , KC_PGDN  , KC_TILD  ,                            KC_PLUS  , KC_MINS  , KC_PGDN  , KC_PGUP  , KC_TILD  ,
+        KC_PLUS  , KC_MINS  , KC_PGDN  , KC_PGUP  , KC_TILD  ,                            KC_PLUS  , KC_MINS  , KC_PGDN  , KC_PGUP  , KC_TILD  ,
         _______  , _______  , _______  , _______  , _______  , _______  ,      _______ ,  _______  , _______  , _______  , _______  , _______
     ),
 
