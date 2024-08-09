@@ -39,6 +39,8 @@ enum custom_keycodes {
     MC_TAB,
     MC_STAB,
     MC_ESC,
+    MC_LSFT,
+    MC_RSFT,
     SCRL_HO,
     SCRL_VR,
     SCRL_TB,
@@ -56,6 +58,8 @@ enum custom_keycodes {
 extern uint16_t horizontal_flag;
 
 bool hold_ctrl = false;
+bool hold_lsft = false;
+bool hold_rsft = false;
 bool is_single_tap = true;
 bool is_ime_on = false;
 bool is_lt4_on = false;
@@ -267,6 +271,42 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                         is_ime_on = false;
                     }
                 }
+            }
+
+            return false;
+        }
+
+        case MC_LSFT: {
+            if (record->event.pressed) {
+                hold_lsft = true;
+                if (hold_rsft) {
+                    unregister_code(KC_LSFT);
+                    layer_on(2);
+                } else {
+                    register_code(KC_LSFT);
+                }
+            } else {
+                hold_lsft = false;
+                layer_off(2);
+                unregister_code(KC_LSFT);
+            }
+
+            return false;
+        }
+
+        case MC_RSFT: {
+            if (record->event.pressed) {
+                hold_rsft = true;
+                if (hold_lsft) {
+                    unregister_code(KC_LSFT);
+                    layer_on(2);
+                } else {
+                    register_code(KC_LSFT);
+                }
+            } else {
+                hold_rsft = false;
+                layer_off(2);
+                unregister_code(KC_LSFT);
             }
 
             return false;

@@ -3,12 +3,13 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
         case SCRL_HO:
         case SCRL_VR:
             return 0;
-        case TD(TD_QUOT):
-        case TD(TD_LBRC):
-        case TD(TD_LCBR):
+        case TD(TD_RBRC):
             return 130;
+        case TD(TD_PIPE):
         case TD(TD_UNDS):
-        case TD(TD_LPRN):
+        case TD(TD_RPRN):
+        case TD(TD_QUOT):
+        case TD(TD_RCBR):
             return 170;
         default:
             return TAPPING_TERM;
