@@ -42,7 +42,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Split parameters
 #define SPLIT_HAND_MATRIX_GRID  GP27, GP9
 #define SPLIT_USB_DETECT
-#define SPLIT_USB_TIMEOUT       3000
+#define SPLIT_USB_TIMEOUT 5000
 #define SPLIT_HAND_MATRIX_GRID_LOW_IS_LEFT
 
 #define SPLIT_TRANSACTION_IDS_KB KEYBALL_GET_INFO, KEYBALL_GET_MOTION, KEYBALL_SET_CPI

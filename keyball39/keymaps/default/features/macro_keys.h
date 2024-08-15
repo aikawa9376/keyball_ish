@@ -30,7 +30,7 @@
 #include "lib/keyball/keyball.h"
 
 enum custom_keycodes {
-    KC_DBLB = KEYBALL_SAFE_RANGE,
+    KC_DBLB = NG_SAFE_RANGE,
     KC_TRPB,
     MC_TMUX,
     MC_TMCP,
@@ -41,6 +41,8 @@ enum custom_keycodes {
     MC_ESC,
     MC_LSFT,
     MC_RSFT,
+    MC_SPACE,
+    MC_ENTER,
     SCRL_HO,
     SCRL_VR,
     SCRL_TB,
@@ -52,7 +54,9 @@ enum custom_keycodes {
     KC_OG_BTN2,
     KC_OG_BTN3,
     KC_OG_BTN4,
-    KC_OG_BTN5
+    KC_OG_BTN5,
+    NG_MON,
+    NG_MOFF
 };
 
 extern uint16_t horizontal_flag;
@@ -157,7 +161,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
 
     switch (keycode) {
-        case LT(4, KC_F): {
+        case LT(UT, KC_F): {
             disable_click_layer();
             if (record->event.pressed) {
                 is_lt4_on = true;
@@ -281,13 +285,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 hold_lsft = true;
                 if (hold_rsft) {
                     unregister_code(KC_LSFT);
-                    layer_on(2);
+                    layer_on(_NUM);
                 } else {
                     register_code(KC_LSFT);
                 }
             } else {
                 hold_lsft = false;
-                layer_off(2);
+                layer_off(_NUM);
                 unregister_code(KC_LSFT);
             }
 
@@ -299,13 +303,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 hold_rsft = true;
                 if (hold_lsft) {
                     unregister_code(KC_LSFT);
-                    layer_on(2);
+                    layer_on(_NUM);
                 } else {
                     register_code(KC_LSFT);
                 }
             } else {
                 hold_rsft = false;
-                layer_off(2);
+                layer_off(_NUM);
                 unregister_code(KC_LSFT);
             }
 
@@ -462,6 +466,24 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 return false;
             }
         }
+
+        case NG_MON: {
+            if (record->event.pressed) {
+                naginata_on();
+            }
+            return false;
+        }
+
+        case NG_MOFF: {
+            if (record->event.pressed) {
+                naginata_off();
+            }
+            return false;
+        }
+    }
+
+    if (naginata_state()) {
+        if (!process_naginata(keycode, record)) return false;
     }
 
     disable_click_layer_all_state();

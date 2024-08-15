@@ -36,7 +36,7 @@ uint16_t clicked_stay_time = 1;     // CLICKEDの滞在時間（千分の一秒)
 uint16_t clickable_stay_time = 1500;  // CLICKABLEの滞在時間（千分の一秒)。その後、クリックレイヤーが無効になる
 
 const int16_t to_clickable_movement = 5;  // クリックレイヤーが有効になるしきい値
-const uint16_t click_layer = 5;           // マウス入力が可能になった際に有効になるレイヤー
+const uint16_t click_layer = _MOUSE;           // マウス入力が可能になった際に有効になるレイヤー
 
 int16_t mouse_record_threshold = 30;  // ポインターの動きを一時的に記録するフレーム数
 int16_t mouse_move_count_ratio = 5;   // ポインターの動きを再生する際の移動フレームの係数

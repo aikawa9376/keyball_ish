@@ -6,11 +6,12 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
         case TD(TD_RBRC):
             return 130;
         case TD(TD_PIPE):
-        case TD(TD_UNDS):
         case TD(TD_RPRN):
         case TD(TD_QUOT):
         case TD(TD_RCBR):
             return 170;
+        case TD(TD_UNDS):
+            return 200;
         default:
             return TAPPING_TERM;
     }
@@ -19,7 +20,9 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
 // 基本はこれをオンにする
 bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
-    case LT(4, KC_F):
+    case LT(UT, KC_F):
+    case LT(SM, KC_SPACE):
+    case LT(SM, KC_ENTER):
     case SFT_T(KC_SPC):
       return false;
     default:
@@ -30,7 +33,9 @@ bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
 
 bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
-    case LT(4, KC_F):
+    case LT(UT, KC_F):
+    case LT(SM, KC_SPACE):
+    case LT(SM, KC_ENTER):
     case SFT_T(KC_SPC):
       // Immediately select the hold action when another key is tapped.
       return true;

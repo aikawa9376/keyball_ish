@@ -17,30 +17,3 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include QMK_KEYBOARD_H
-
-//////////////////////////////////////////////////////////////////////////////
-
-// TODO: 問題なければ消す
-// clang-format off
-/* matrix_row_t matrix_mask[MATRIX_ROWS] = { */
-/*     0b00011111, */
-/*     0b00011111, */
-/*     0b00011111, */
-/*     0b00111111, */
-/*     0b00011111, */
-/*     0b00011111, */
-/*     0b00011111, */
-/*     0b00111111, */
-/* }; */
-// clang-format on
-
-// TODO: 問題なければ消す
-/* void keyball_on_adjust_layout(keyball_adjust_t v) { */
-/* #ifdef RGBLIGHT_ENABLE */
-/*     // adjust RGBLIGHT's clipping and effect ranges */
-/*     uint8_t lednum_this = keyball.this_have_ball ? 22 : 24; */
-/*     uint8_t lednum_that = !keyball.that_enable ? 0 : keyball.that_have_ball ? 22 : 24; */
-/*     rgblight_set_clipping_range(is_keyboard_left() ? 0 : lednum_that, lednum_this); */
-/*     rgblight_set_effect_range(0, lednum_this + lednum_that); */
-/* #endif */
-/* } */
