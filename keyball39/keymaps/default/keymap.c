@@ -46,10 +46,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
 
     [_SYMBOL] = LAYOUT_universal(
-        KC_EXLM   , KC_AT      , KC_HASH  , KC_DLR     , KC_PERC    ,                            KC_CIRC  , KC_AMPR  , TD(TD_UNDS), KC_EQL     , KC_BSLS  ,
-        KC_LPRN   , TD(TD_RPRN), KC_LBRC  , TD(TD_RBRC), TD(TD_PIPE),                            KC_ASTR  , KC_SLSH  , KC_DQT     , TD(TD_QUOT), KC_GRV   ,
-        KC_LCBR   , TD(TD_RCBR), C(KC_C)  , G(KC_V)    , G(KC_SPC)  ,                            KC_PLUS  , KC_MINS  , KC_TILD    , KC_BSLS    , KC_TILD  ,
-        _______   , _______    , _______  , KC_PGUP    , KC_PGDN    , _______  ,      KC_LCBR ,  KC_RCBR  , _______  , _______    , _______    , _______
+        KC_EXLM   , KC_AT   , KC_HASH  , KC_DLR  , KC_PERC    ,                            KC_CIRC  , KC_AMPR  , KC_UNDS  , KC_EQL  , KC_BSLS  ,
+        KC_LPRN   , KC_RPRN , KC_LBRC  , KC_RBRC , KC_PIPE)   ,                            KC_ASTR  , KC_SLSH  , KC_GRV   , KC_DQT  , KC_QUOT  ,
+        KC_LCBR   , KC_RCBR , C(KC_C)  , G(KC_V) , G(KC_SPC)  ,                            KC_PLUS  , KC_MINS  , KC_PGDN  , KC_PGUP , KC_TILD  ,
+        _______   , _______ , _______  , KC_PGUP , KC_PGDN    , _______  ,      KC_LCBR ,  KC_RCBR  , _______  , _______  , _______ , _______
     ),
 
     [_NUM] = LAYOUT_universal(
