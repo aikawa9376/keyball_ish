@@ -337,9 +337,8 @@ void naginata_on(void) {
   naginata_clear();
   layer_on(naginata_layer);
 
-  /* tap_code(KC_LANGUAGE_1); // Mac */
-  /* tap_code(KC_INTERNATIONAL_4); // Win */
-  tap_code(KC_RGUI); // li
+  tap_code(KC_LANGUAGE_1); // Mac
+  tap_code(KC_INTERNATIONAL_4); // Win
 }
 
 // 薙刀式をオフ
@@ -349,9 +348,8 @@ void naginata_off(void) {
   naginata_clear();
   layer_off(naginata_layer);
 
-  /* tap_code(KC_LANGUAGE_2); // Mac */
-  /* tap_code(KC_INTERNATIONAL_5); // Win */
-  tap_code(KC_ESC); // li
+  tap_code(KC_LANGUAGE_2); // Mac
+  tap_code(KC_INTERNATIONAL_5); // Win
 }
 
 // 薙刀式のon/off状態を返す
@@ -1352,6 +1350,16 @@ bool naginata_lookup(int nt, bool shifted) {
         break;
       case B_F|B_G:
         naginata_off();
+        compress_buffer(nt);
+        return true;
+        break;
+      case B_D|B_F:
+        tap_code(KC_ENTER);
+        compress_buffer(nt);
+        return true;
+        break;
+      case B_J|B_K:
+        tap_code(KC_SPACE);
         compress_buffer(nt);
         return true;
         break;

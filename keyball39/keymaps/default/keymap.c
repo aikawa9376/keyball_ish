@@ -27,6 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "features/combo.h"
 #include "features/tap_dance.h"
 #include "features/tap_hold.h"
+#include "features/os_detection.h"
 
 // clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -47,7 +48,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [_SYMBOL] = LAYOUT_universal(
         KC_EXLM   , KC_AT   , KC_HASH  , KC_DLR  , KC_PERC    ,                            KC_CIRC  , KC_AMPR  , KC_UNDS  , KC_EQL  , KC_BSLS  ,
-        KC_LPRN   , KC_RPRN , KC_LBRC  , KC_RBRC , KC_PIPE)   ,                            KC_ASTR  , KC_SLSH  , KC_GRV   , KC_DQT  , KC_QUOT  ,
+        KC_LPRN   , KC_RPRN , KC_LBRC  , KC_RBRC , KC_PIPE    ,                            KC_ASTR  , KC_SLSH  , KC_GRV   , KC_DQT  , KC_QUOT  ,
         KC_LCBR   , KC_RCBR , C(KC_C)  , G(KC_V) , G(KC_SPC)  ,                            KC_PLUS  , KC_MINS  , KC_PGDN  , KC_PGUP , KC_TILD  ,
         _______   , _______ , _______  , KC_PGUP , KC_PGDN    , _______  ,      KC_LCBR ,  KC_RCBR  , _______  , _______  , _______ , _______
     ),
@@ -55,7 +56,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_NUM] = LAYOUT_universal(
         KC_F1   , KC_F2    , KC_F3     , KC_F4    , KC_F5    ,                            KC_F6    , KC_F7    , KC_F8    , KC_F9    , KC_F10   ,
         KC_1    , KC_2     , KC_3      , KC_4     , KC_5     ,                            KC_6     , KC_7     , KC_8     , KC_9     , KC_0     ,
-        KC_PLUS , KC_MINS  , KC_ASTR   , KC_SLSH  , KC_EQL   ,                            KC_SPC   , NG_MON   , _______  , _______  , _______  ,
+        KC_PLUS , KC_MINS  , KC_ASTR   , KC_SLSH  , KC_EQL   ,                            KC_SPC   , _______  , _______  , _______  , _______  ,
         _______ , _______  , _______   , KC_F11   , KC_F12   , _______  ,      _______ ,  _______  , _______  , _______  , _______  , QK_BOOT
     ),
 
@@ -70,12 +71,12 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______  , _______ , _______  , _______  , _______  ,                            G(KC_Q)  , MC_TAB   , MC_STAB  , _______  , _______  ,
         _______  , _______ , _______  , _______  , _______  ,                            C(KC_F4) , MC_ESC   , _______  , MC_TMCP  , MC_TMUX  ,
         _______  , _______ , _______  , _______  , _______  ,                            _______  , MC_J     , MC_K     , _______  , _______  ,
-        _______  , _______ , _______  , _______  , _______  , _______  ,      _______ ,  _______  , _______  , _______  , _______  , _______
+        _______  , _______ , _______  , _______  , _______  , _______  ,      _______ ,  _______  , _______  , _______  , _______  , NG_MON
     ),
 
     [_MOUSE] = LAYOUT_universal(
         SCRL_MO  , SCRL_WD  , _______  , KC_TRPB  , SCRL_TB  ,                            _______  , _______  , AC_INS   , _______  , _______  ,
-        SCRL_HO  , _______  ,_______   ,_______   , KC_DBLB  ,                            AC_KEP   ,KC_OG_BTN1,KC_OG_BTN2, _______  , SCRL_HO  ,
+        SCRL_HO  , _______  , _______  ,_______   , KC_DBLB  ,                            AC_KEP   ,KC_OG_BTN1,KC_OG_BTN2, _______  , SCRL_HO  ,
         SCRL_VR  , _______  ,KC_OG_BTN4,KC_OG_BTN5, _______  ,                            _______  ,KC_OG_BTN4,KC_OG_BTN5, _______  , _______  ,
         _______  , _______  , _______  , _______  , _______  , _______  ,      _______  , _______  , _______  , _______  , _______  , _______
     ),

@@ -1,5 +1,5 @@
 enum layers {
-    _DEFAULT,
+    _DEFAULT = 0,
     _NAGINATA,
     _SYMBOL,
     _NUM,
