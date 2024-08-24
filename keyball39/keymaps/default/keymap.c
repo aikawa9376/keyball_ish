@@ -18,6 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include QMK_KEYBOARD_H
 
+#include "raw_hid.h"
+
 #include "keymap.h"
 #include "utils/functions.h"
 #include "lib/naginata/naginata.h"
@@ -69,14 +71,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [_UTIL] = LAYOUT_universal(
         _______  , _______ , _______  , _______  , _______  ,                            G(KC_Q)  , MC_TAB   , MC_STAB  , _______  , _______  ,
-        _______  , _______ , _______  , _______  , _______  ,                            C(KC_F4) , MC_ESC   , _______  , MC_TMCP  , MC_TMUX  ,
+        _______  , _______ , _______  , _______  , _______  ,                            C(KC_F4) , KC_RSFT  , _______  , MC_TMCP  , MC_TMUX  ,
         _______  , _______ , _______  , _______  , _______  ,                            _______  , MC_J     , MC_K     , _______  , _______  ,
         _______  , _______ , _______  , _______  , _______  , _______  ,      _______ ,  _______  , _______  , _______  , _______  , NG_MON
     ),
 
     [_MOUSE] = LAYOUT_universal(
         SCRL_MO  , SCRL_WD  , _______  , KC_TRPB  , SCRL_TB  ,                            _______  , _______  , AC_INS   , _______  , _______  ,
-        SCRL_HO  , _______  , _______  ,_______   , KC_DBLB  ,                            AC_KEP   ,KC_OG_BTN1,KC_OG_BTN2, _______  , SCRL_HO  ,
+        SCRL_HO  , _______  , _______  , _______  , KC_DBLB  ,                            AC_KEP   ,KC_OG_BTN1,KC_OG_BTN2, _______  , SCRL_HO  ,
         SCRL_VR  , _______  ,KC_OG_BTN4,KC_OG_BTN5, _______  ,                            _______  ,KC_OG_BTN4,KC_OG_BTN5, _______  , _______  ,
         _______  , _______  , _______  , _______  , _______  , _______  ,      _______  , _______  , _______  , _______  , _______  , _______
     ),
@@ -87,6 +89,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 // init keyboard
 void matrix_init_user(void) {
     set_naginata_layer(_NAGINATA);
+}
+
+void raw_hid_receive(uint8_t *data, uint8_t length) {
+    // Your code goes here
+    // `data` is a pointer to the buffer containing the received HID report
+    // `length` is the length of the report - always `RAW_EPSIZE`
+    raw_hid_send(data, length);
 }
 
 layer_state_t layer_state_set_user(layer_state_t state) {
