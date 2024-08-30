@@ -43,6 +43,7 @@ enum custom_keycodes {
     MC_RSFT,
     MC_SPACE,
     MC_ENTER,
+    MC_APPN,
     SCRL_HO,
     SCRL_VR,
     SCRL_TB,
@@ -480,6 +481,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             return false;
         }
+
+        // debug key
+        case MC_APPN: {
+            if (record->event.pressed && application_name[0] != '\0' ) {
+                send_string(application_name);
+            }
+            return false;
+ }
     }
 
     if (naginata_state()) {
