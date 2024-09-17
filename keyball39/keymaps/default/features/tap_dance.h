@@ -6,6 +6,7 @@ enum {
   TD_RBRC,
   TD_RCBR,
   TD_PIPE,
+  TD_0,
 };
 
 //Tap Dance Definitions
@@ -17,4 +18,5 @@ tap_dance_action_t tap_dance_actions[] = {
   [TD_RBRC]  = ACTION_TAP_DANCE_DOUBLE(KC_RBRC, KC_DQT),
   [TD_RCBR]  = ACTION_TAP_DANCE_DOUBLE(KC_RCBR, KC_GRV),
   [TD_PIPE]  = ACTION_TAP_DANCE_DOUBLE(KC_PIPE, KC_EQL),
+  [TD_0]  = ACTION_TAP_DANCE_DOUBLE(KC_0, KC_COLN),
 };

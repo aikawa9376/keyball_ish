@@ -9,6 +9,7 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
         case TD(TD_RPRN):
         case TD(TD_QUOT):
         case TD(TD_RCBR):
+        case TD(TD_0):
             return 170;
         case TD(TD_UNDS):
             return 200;
