@@ -31,9 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define SPI_SCK_PIN GP22
 #define SPI_MISO_PIN GP20
 #define SPI_MOSI_PIN GP23
-#define POINTING_DEVICE_CS_PIN GP21
 #define PMW33XX_CS_PIN GP21
-#define PMW3360_CS_PIN GP21
 
 #define POINTING_DEVICE_INVERT_X
 #define POINTING_DEVICE_ROTATION_90

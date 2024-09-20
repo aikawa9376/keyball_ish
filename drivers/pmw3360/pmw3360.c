@@ -22,6 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "srom_0x04.c"
 #include "srom_0x81.c"
 
+#define F_CPU 125000000UL
+
 #define PMW3360_SPI_MODE 3
 #define PMW3360_SPI_DIVISOR (F_CPU / PMW3360_CLOCKS)
 #define PMW3360_CLOCKS 2000000
