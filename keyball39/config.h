@@ -31,11 +31,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define SPI_SCK_PIN GP22
 #define SPI_MISO_PIN GP20
 #define SPI_MOSI_PIN GP23
-#define PMW33XX_CS_PIN GP21
 
-#define POINTING_DEVICE_INVERT_X
-#define POINTING_DEVICE_ROTATION_90
-// #define POINTING_DEVICE_GESTURES_CURSOR_GLIDE_ENABLE
+#define POINTING_DEVICE_GESTURES_CURSOR_GLIDE_ENABLE
 
 // Split parameters
 #define SPLIT_HAND_MATRIX_GRID  GP27, GP9

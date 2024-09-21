@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define COMBO_COUNT 3
 
-#define KEYBALL_CPI_DEFAULT 400      // 光学センサーPMW3360DM の解像度 (CPI) の規定値
+#define KEYBALL_CPI_DEFAULT 500      // 光学センサーPMW3360DM の解像度 (CPI) の規定値
 #define KEYBALL_SCROLL_DIV_DEFAULT 6  // スクロール速度の規定値
 
 #define TAPPING_TERM 6000
