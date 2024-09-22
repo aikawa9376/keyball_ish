@@ -44,6 +44,8 @@ enum custom_keycodes {
     MC_SPACE,
     MC_ENTER,
     MC_APPN,
+    MC_ALKL,
+    MC_BLKL,
     SCRL_HO,
     SCRL_VR,
     SCRL_TB,
@@ -237,6 +239,30 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             if (record->event.pressed) {
                 tap_code16(RALT(KC_SPACE));
                 tap_code16(KC_SPACE);
+            }
+            return false;  // キーのデフォルトの動作をスキップする
+        }
+
+        // CTRL+K
+        case MC_ALKL: {
+            if (record->event.pressed) {
+                register_code16(KC_LSFT);
+                tap_code16(KC_HOME);
+                tap_code16(KC_DELETE);
+            } else {
+                unregister_code16(KC_LSFT);
+            }
+            return false;  // キーのデフォルトの動作をスキップする
+        }
+
+        // CTRL+U
+        case MC_BLKL: {
+            if (record->event.pressed) {
+                register_code16(KC_LSFT);
+                tap_code16(KC_END);
+                tap_code16(KC_DELETE);
+            } else {
+                unregister_code16(KC_LSFT);
             }
             return false;  // キーのデフォルトの動作をスキップする
         }
@@ -488,7 +514,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 send_string(application_name);
             }
             return false;
- }
+        }
     }
 
     if (naginata_state()) {
