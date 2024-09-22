@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "keymap.h"
 #include "utils/functions.h"
 #include "lib/naginata/naginata.h"
+#include "features/overrides.h"
 #include "features/raw_hid_handler.h"
 #include "features/auto_click_layer.h"
 #include "features/one_tap_multi_click.h"
@@ -37,7 +38,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_Q       , KC_W    , KC_E    , KC_R        , KC_T    ,                       KC_Y   , KC_U     , KC_I    , KC_O    , KC_P    ,
         KC_A       , KC_S    , KC_D    , LT(UT, KC_F), KC_G    ,                       KC_H   , KC_J     , KC_K    , KC_L    , LT(SM, KC_SCLN) ,
         KC_Z       , KC_X    , KC_C    , KC_V        , KC_B    ,                       KC_N   , KC_M     , KC_COMM , KC_DOT  , KC_SLSH ,
-        KC_LGUI    , KC_SPC  , KC_BSPC , KC_LALT     , MC_ESC  , MC_LSFT,     MC_RSFT, MC_ESC ,  _______ , _______ , _______ , KC_RSFT
+        KC_LGUI    , KC_SPC  , KC_BSPC , KC_LALT     , MC_ESC  , MC_LSFT,     MC_RSFT, MC_ESC ,  _______ , _______ , _______ , KC_MUTE
     ),
 
     [_NAGINATA] = LAYOUT_universal(
@@ -91,7 +92,8 @@ void matrix_init_user(void) {
 }
 
 layer_state_t layer_state_set_user(layer_state_t state) {
-    // Auto enable scroll mode when the highest layer is 3
+    // key_overrideのデバックを行う
+    // set_key_overrides("debug");
 
     // レイヤー移動のたびに新設したkeep_click_layerをオフにする
     if(get_highest_layer(state) <= _MOUSE) {

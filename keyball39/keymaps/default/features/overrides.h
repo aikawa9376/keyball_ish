@@ -18,7 +18,7 @@ bool ctrl_k(bool key_down, void *context) {
     if (key_down) {
         register_code16(KC_LSFT);
         tap_code16(KC_END);
-        tap_code16(KC_DELETE);
+        tap_code16(KC_BSPC);
     } else {
         unregister_code16(KC_LSFT);
     }
@@ -30,7 +30,7 @@ bool ctrl_u(bool key_down, void *context) {
     if (key_down) {
         register_code16(KC_LSFT);
         tap_code16(KC_HOME);
-        tap_code16(KC_DELETE);
+        tap_code16(KC_BSPC);
     } else {
         unregister_code16(KC_LSFT);
     }
@@ -48,18 +48,20 @@ const key_override_t ko_layer_gui_override_2 = ko_make_basic(MOD_MASK_CTRL, LT(U
 const key_override_t ko_layer_gui_override_3 = ko_make_basic(MOD_MASK_CTRL, KC_P, KC_UP);
 const key_override_t ko_layer_gui_override_4 = ko_make_basic(MOD_MASK_CTRL, KC_N, KC_DOWN);
 const key_override_t ko_layer_gui_override_5 = ko_make_basic(MOD_MASK_CTRL, KC_H, KC_BSPC);
-const key_override_t ko_layer_gui_override_6 = ko_make_basic(MOD_MASK_CTRL, KC_A, KC_HOME);
-const key_override_t ko_layer_gui_override_7 = ko_make_basic(MOD_MASK_CTRL, KC_E, KC_END);
-const key_override_t ko_layer_gui_override_8 = ko_make_basic(MOD_MASK_CTRL, KC_M, KC_ENTER);
-const key_override_t ko_layer_gui_override_9 = ko_make_basic(MOD_MASK_CTRL, KC_D, KC_DELETE);
-const key_override_t ko_layer_gui_override_10 = ko_make_with_custom_action(MOD_MASK_CTRL, KC_K, KC_NO, ctrl_k);
-const key_override_t ko_layer_gui_override_11 = ko_make_with_custom_action(MOD_MASK_CTRL, KC_U, KC_NO, ctrl_u);
-const key_override_t ko_layer_gui_override_12 = ko_make_basic(MOD_MASK_CTRL, KC_Y, S(KC_F10));
-const key_override_t ko_layer_gui_override_13 = ko_make_basic(MOD_MASK_CTRL, KC_LBRC, KC_ESC);
-const key_override_t ko_layer_gui_override_14 = ko_make_basic(MOD_MASK_CS, KC_A, S(KC_HOME));
-const key_override_t ko_layer_gui_override_15 = ko_make_basic(MOD_MASK_CS, KC_E, S(KC_END));
-const key_override_t ko_layer_gui_override_16 = ko_make_basic(MOD_MASK_CS, KC_I, S(KC_TAB));
-const key_override_t ko_layer_gui_override_17 = ko_make_basic(0, G(KC_V), C(KC_V));
+const key_override_t ko_layer_gui_override_6 = ko_make_basic(MOD_MASK_CTRL, KC_W, C(KC_BSPC));
+const key_override_t ko_layer_gui_override_7 = ko_make_basic(MOD_MASK_CTRL, KC_A, KC_HOME);
+const key_override_t ko_layer_gui_override_8 = ko_make_basic(MOD_MASK_CTRL, KC_E, KC_END);
+const key_override_t ko_layer_gui_override_9 = ko_make_basic(MOD_MASK_CTRL, KC_M, KC_ENTER);
+const key_override_t ko_layer_gui_override_10 = ko_make_basic(MOD_MASK_CTRL, KC_D, KC_DELETE);
+const key_override_t ko_layer_gui_override_11 = ko_make_with_custom_action(MOD_MASK_CTRL, KC_K, KC_NO, ctrl_k);
+const key_override_t ko_layer_gui_override_12 = ko_make_with_custom_action(MOD_MASK_CTRL, KC_U, KC_NO, ctrl_u);
+const key_override_t ko_layer_gui_override_13 = ko_make_basic(MOD_MASK_CTRL, KC_Y, S(KC_F10));
+const key_override_t ko_layer_gui_override_14 = ko_make_basic(MOD_MASK_CTRL, KC_LBRC, KC_ESC);
+const key_override_t ko_layer_gui_override_15 = ko_make_basic(MOD_MASK_CS, KC_A, S(KC_HOME));
+const key_override_t ko_layer_gui_override_16 = ko_make_basic(MOD_MASK_CS, KC_E, S(KC_END));
+const key_override_t ko_layer_gui_override_17 = ko_make_basic(MOD_MASK_CTRL, KC_I, KC_TAB);
+const key_override_t ko_layer_gui_override_18 = ko_make_basic(MOD_MASK_CS, KC_I, S(KC_TAB));
+const key_override_t ko_layer_gui_override_19 = ko_make_basic(0, G(KC_V), C(KC_V));
 
 const key_override_t ko_layer_debug_override_1 = ko_make_basic(MOD_MASK_CTRL, KC_C, C(KC_A));
 
@@ -87,6 +89,7 @@ const key_override_t *linux_copyq_overrides[] = {
     &ko_layer_gui_override_15,
     &ko_layer_gui_override_16,
     &ko_layer_gui_override_17,
+    &ko_layer_gui_override_18,
     NULL
 };
 
