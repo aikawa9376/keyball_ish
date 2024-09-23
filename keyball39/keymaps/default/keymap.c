@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "keymap.h"
 #include "utils/functions.h"
 #include "lib/naginata/naginata.h"
+#include "features/os_detection.h"
 #include "features/overrides.h"
 #include "features/raw_hid_handler.h"
 #include "features/auto_click_layer.h"
@@ -29,7 +30,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "features/combo.h"
 #include "features/tap_dance.h"
 #include "features/tap_hold.h"
-#include "features/os_detection.h"
 
 // clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -72,7 +72,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_UTIL] = LAYOUT_universal(
         _______  , _______ , _______  , _______  , _______  ,                            G(KC_Q)  , MC_TAB   , MC_STAB  , _______  , _______  ,
         _______  , _______ , _______  , _______  , _______  ,                            C(KC_F4) , KC_RSFT  , _______  , MC_TMCP  , MC_TMUX  ,
-        _______  , _______ , _______  , _______  , _______  ,                            MC_APPN  , MC_J     , MC_K     , _______  , _______  ,
+        MC_DATE  , _______ , _______  , _______  , _______  ,                            MC_APPN  , MC_J     , MC_K     , _______  , _______  ,
         _______  , _______ , _______  , _______  , _______  , _______  ,      _______ ,  _______  , _______  , _______  , _______  , NG_MON
     ),
 

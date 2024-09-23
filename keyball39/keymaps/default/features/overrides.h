@@ -65,6 +65,11 @@ const key_override_t ko_layer_gui_override_19 = ko_make_basic(0, G(KC_V), C(KC_V
 
 const key_override_t ko_layer_debug_override_1 = ko_make_basic(MOD_MASK_CTRL, KC_C, C(KC_A));
 
+const key_override_t ko_layer_winterm_override_1 = ko_make_basic(0, G(KC_V), S(KC_INSERT));
+const key_override_t ko_layer_winterm_override_2 = ko_make_basic(MOD_MASK_CTRL, LT(SM, KC_SCLN), G(KC_V));
+
+const key_override_t ko_layer_wingui_override_1 = ko_make_basic(MOD_MASK_CTRL, LT(SM, KC_SCLN), G(KC_V));
+
 const key_override_t *linux_rofi_overrides[] = {
     &ko_layer_rofi_override_1,
     NULL
@@ -90,6 +95,7 @@ const key_override_t *linux_copyq_overrides[] = {
     &ko_layer_gui_override_16,
     &ko_layer_gui_override_17,
     &ko_layer_gui_override_18,
+    &ko_layer_gui_override_19,
     NULL
 };
 
@@ -111,6 +117,38 @@ const key_override_t *linux_gui_overrides[] = {
     &ko_layer_gui_override_15,
     &ko_layer_gui_override_16,
     &ko_layer_gui_override_17,
+    &ko_layer_gui_override_18,
+    &ko_layer_gui_override_19,
+    NULL
+};
+
+const key_override_t *win_gui_overrides[] = {
+    &ko_layer_wingui_override_1,
+    &ko_layer_gui_override_1,
+    &ko_layer_gui_override_2,
+    &ko_layer_gui_override_3,
+    &ko_layer_gui_override_4,
+    &ko_layer_gui_override_5,
+    &ko_layer_gui_override_6,
+    &ko_layer_gui_override_7,
+    &ko_layer_gui_override_8,
+    &ko_layer_gui_override_9,
+    &ko_layer_gui_override_10,
+    &ko_layer_gui_override_11,
+    &ko_layer_gui_override_12,
+    &ko_layer_gui_override_13,
+    &ko_layer_gui_override_14,
+    &ko_layer_gui_override_15,
+    &ko_layer_gui_override_16,
+    &ko_layer_gui_override_17,
+    &ko_layer_gui_override_18,
+    &ko_layer_gui_override_19,
+    NULL
+};
+
+const key_override_t *win_terminal_overrides[] = {
+    &ko_layer_winterm_override_1,
+    &ko_layer_winterm_override_2,
     NULL
 };
 
@@ -128,8 +166,12 @@ void set_key_overrides(const char *application_name) {
         key_overrides = linux_copyq_overrides;
     } else if (strcmp(application_name, "debug") == 0) {
         key_overrides = linux_debug_overrides;
+    } else if (strcmp(application_name, "WindowsTerminal") == 0) {
+        key_overrides = win_terminal_overrides;
     } else if (strcmp(application_name, "kitty") == 0) {
         key_overrides = NULL;
+    } else if (os_name == OS_WINDOWS) {
+        key_overrides = win_gui_overrides;
     } else {
         key_overrides = linux_gui_overrides;
     }

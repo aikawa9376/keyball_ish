@@ -46,6 +46,7 @@ enum custom_keycodes {
     MC_APPN,
     MC_ALKL,
     MC_BLKL,
+    MC_DATE,
     SCRL_HO,
     SCRL_VR,
     SCRL_TB,
@@ -263,6 +264,19 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 tap_code16(KC_DELETE);
             } else {
                 unregister_code16(KC_LSFT);
+            }
+            return false;  // キーのデフォルトの動作をスキップする
+        }
+
+        // 現在日付時刻
+        case MC_DATE: {
+            if (record->event.pressed) {
+                uint8_t report[32] = {0};
+                report[0] = DATETIME_UPDATE;
+
+                raw_hid_send(report, sizeof(report));
+            } else {
+                return false;
             }
             return false;  // キーのデフォルトの動作をスキップする
         }
