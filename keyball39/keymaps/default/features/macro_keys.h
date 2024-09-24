@@ -231,14 +231,22 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         // Tmuxのプレフィックス
         case MC_TMUX: {
             if (record->event.pressed) {
-                tap_code16(RALT(KC_SPACE));
+                if (os_name == OS_WINDOWS) {
+                    tap_code16(RALT(KC_B));
+                } else {
+                    tap_code16(RALT(KC_SPACE));
+                }
             }
             return false;  // キーのデフォルトの動作をスキップする
         }
         // Tmuxのコピーモード
         case MC_TMCP: {
             if (record->event.pressed) {
-                tap_code16(RALT(KC_SPACE));
+                if (os_name == OS_WINDOWS) {
+                    tap_code16(RALT(KC_B));
+                } else {
+                    tap_code16(RALT(KC_SPACE));
+                }
                 tap_code16(KC_SPACE);
             }
             return false;  // キーのデフォルトの動作をスキップする

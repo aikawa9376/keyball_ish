@@ -71,7 +71,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [_UTIL] = LAYOUT_universal(
         _______  , _______ , _______  , _______  , _______  ,                            G(KC_Q)  , MC_TAB   , MC_STAB  , _______  , _______  ,
-        _______  , _______ , _______  , _______  , _______  ,                            C(KC_F4) , KC_RSFT  , _______  , MC_TMCP  , MC_TMUX  ,
+        _______  , MC_TMUX , MC_TMCP  , _______  , _______  ,                            KC_LEFT  , KC_DOWN  , KC_UP    , KC_RGHT  , C(KC_F4) ,
         MC_DATE  , _______ , _______  , _______  , _______  ,                            MC_APPN  , MC_J     , MC_K     , _______  , _______  ,
         _______  , _______ , _______  , _______  , _______  , _______  ,      _______ ,  _______  , _______  , _______  , _______  , NG_MON
     ),
