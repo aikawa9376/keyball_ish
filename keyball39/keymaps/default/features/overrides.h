@@ -62,6 +62,7 @@ const key_override_t ko_layer_gui_override_16 = ko_make_basic(MOD_MASK_CS, KC_E,
 const key_override_t ko_layer_gui_override_17 = ko_make_basic(MOD_MASK_CTRL, KC_I, KC_TAB);
 const key_override_t ko_layer_gui_override_18 = ko_make_basic(MOD_MASK_CS, KC_I, S(KC_TAB));
 const key_override_t ko_layer_gui_override_19 = ko_make_basic(0, G(KC_V), C(KC_V));
+const key_override_t ko_layer_gui_override_20 = ko_make_basic(0, G(KC_A), C(KC_A));
 
 const key_override_t ko_layer_debug_override_1 = ko_make_basic(MOD_MASK_CTRL, KC_C, C(KC_A));
 
@@ -96,6 +97,7 @@ const key_override_t *linux_copyq_overrides[] = {
     &ko_layer_gui_override_17,
     &ko_layer_gui_override_18,
     &ko_layer_gui_override_19,
+    &ko_layer_gui_override_20,
     NULL
 };
 
@@ -119,6 +121,7 @@ const key_override_t *linux_gui_overrides[] = {
     &ko_layer_gui_override_17,
     &ko_layer_gui_override_18,
     &ko_layer_gui_override_19,
+    &ko_layer_gui_override_20,
     NULL
 };
 
@@ -143,6 +146,7 @@ const key_override_t *win_gui_overrides[] = {
     &ko_layer_gui_override_17,
     &ko_layer_gui_override_18,
     &ko_layer_gui_override_19,
+    &ko_layer_gui_override_20,
     NULL
 };
 
