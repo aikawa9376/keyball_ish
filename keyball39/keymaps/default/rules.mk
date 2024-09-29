@@ -8,5 +8,6 @@ UNICODE_ENABLE = yes
 OS_DETECTION_ENABLE = yes
 RAW_ENABLE = yes
 KEY_OVERRIDE_ENABLE = yes
+LEADER_ENABLE = yes
 
 SRC += lib/naginata/naginata_v15.c

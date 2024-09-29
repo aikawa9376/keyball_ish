@@ -27,6 +27,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define DYNAMIC_KEYMAP_LAYER_COUNT 7
 
 #define COMBO_COUNT 3
+#define COMBO_MUST_PRESS_IN_ORDER_PER_COMBO
+#define COMBO_MUST_HOLD_PER_COMBO
+
+#define LEADER_TIMEOUT 120
 
 #define KEYBALL_CPI_DEFAULT 500      // 光学センサーPMW3360DM の解像度 (CPI) の規定値
 #define KEYBALL_SCROLL_DIV_DEFAULT 6  // スクロール速度の規定値
@@ -36,6 +40,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // #define RETRO_TAPPING
 #define TAPPING_TERM_PER_KEY
+#define COMBO_TERM_PER_COMBO
 #define PERMISSIVE_HOLD_PER_KEY
 #define HOLD_ON_OTHER_KEY_PRESS_PER_KEY
 #define QUICK_TAP_TERM_PER_KEY

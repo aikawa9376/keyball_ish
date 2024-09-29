@@ -22,7 +22,7 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
 bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
     case LT(UT, KC_F):
-    case LT(SM, KC_SPACE):
+    // case LT(SM, KC_SPACE):
     case SFT_T(KC_SPC):
       return false;
     default:
@@ -34,7 +34,7 @@ bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
 bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
     case LT(UT, KC_F):
-    case LT(SM, KC_SPACE):
+    // case LT(SM, KC_SPACE):
     case SFT_T(KC_SPC):
       // Immediately select the hold action when another key is tapped.
       return true;
