@@ -33,6 +33,7 @@ enum combos {
     CE_VO,
     CE_VC,
     CE_VX,
+    CE_VQ,
     CE_VBL,
     CE_VLF,
     CE_VLR,
@@ -70,6 +71,7 @@ const uint16_t PROGMEM vimln_combo[] = {LT(SM, KC_SCLN), KC_N, COMBO_END};
 const uint16_t PROGMEM vimlo_combo[] = {LT(SM, KC_SCLN), KC_O, COMBO_END};
 const uint16_t PROGMEM vimlc_combo[] = {LT(SM, KC_SCLN), KC_C, COMBO_END};
 const uint16_t PROGMEM vimlx_combo[] = {LT(SM, KC_SCLN), KC_X, COMBO_END};
+const uint16_t PROGMEM vimlq_combo[] = {LT(SM, KC_SCLN), KC_Q, COMBO_END};
 const uint16_t PROGMEM vimlbl_combo[] = {LT(SM, KC_SCLN), MC_ESC, COMBO_END};
 const uint16_t PROGMEM vimllf_combo[] = {LT(SM, KC_SCLN), S(KC_F), COMBO_END};
 const uint16_t PROGMEM vimllr_combo[] = {LT(SM, KC_SCLN), S(KC_R), COMBO_END};
@@ -103,6 +105,7 @@ combo_t key_combos[] = {
     [CE_VO] = COMBO_ACTION(vimlo_combo),
     [CE_VC] = COMBO_ACTION(vimlc_combo),
     [CE_VX] = COMBO_ACTION(vimlx_combo),
+    [CE_VQ] = COMBO_ACTION(vimlq_combo),
     [CE_VBL] = COMBO_ACTION(vimlbl_combo),
     [CE_VLF] = COMBO_ACTION(vimllf_combo),
     [CE_VLR] = COMBO_ACTION(vimllr_combo),
@@ -192,6 +195,12 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
         tap_code16(KC_X);
       }
       break;
+    case CE_VQ:
+      if (pressed) {
+        tap_code16(KC_SPACE);
+        tap_code16(KC_Q);
+      }
+      break;
     case CE_VBL:
       if (pressed) {
         tap_code16(KC_SPACE);
@@ -253,6 +262,8 @@ bool get_combo_must_press_in_order(uint16_t combo_index, combo_t *combo) {
         case CE_VN:
         case CE_VO:
         case CE_VC:
+        case CE_VX:
+        case CE_VQ:
         case CE_VBL:
         case CE_VLF:
         case CE_VLR:
