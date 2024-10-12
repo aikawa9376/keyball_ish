@@ -31,6 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define SPI_SCK_PIN GP22
 #define SPI_MISO_PIN GP20
 #define SPI_MOSI_PIN GP23
+#define SPI_USE_MUTUAL_EXCLUSION FALSE
 
 #define POINTING_DEVICE_GESTURES_CURSOR_GLIDE_ENABLE
 

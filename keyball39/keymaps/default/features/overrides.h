@@ -1,5 +1,7 @@
 #include <string.h>
 
+#define MAX_OVERRIDES 30
+
 #define ko_make_with_custom_action(trigger_mods_, trigger_key, replacement_key, custom_action_)  \
     ((const key_override_t){ \
         .trigger_mods      = (trigger_mods_), \
@@ -161,22 +163,36 @@ const key_override_t *linux_debug_overrides[] = {
     NULL
 };
 
-const key_override_t **key_overrides = NULL;  // Default, no overrides
+const key_override_t *key_overrides[MAX_OVERRIDES];
 
 void set_key_overrides(const char *application_name) {
+    // 配列をクリア
+    memset(key_overrides, 0, sizeof(key_overrides));
+
+    const key_override_t **selected_overrides = NULL;
+
+    // アプリケーション名に基づいて、使用するオーバーライドセットを選択
     if (strcmp(application_name, "Rofi") == 0) {
-        key_overrides = linux_rofi_overrides;
+        selected_overrides = linux_rofi_overrides;
     } else if (strcmp(application_name, "copyq") == 0) {
-        key_overrides = linux_copyq_overrides;
+        selected_overrides = linux_copyq_overrides;
     } else if (strcmp(application_name, "debug") == 0) {
-        key_overrides = linux_debug_overrides;
+        selected_overrides = linux_debug_overrides;
     } else if (strcmp(application_name, "WindowsTerminal") == 0) {
-        key_overrides = win_terminal_overrides;
+        selected_overrides = win_terminal_overrides;
     } else if (strcmp(application_name, "kitty") == 0) {
-        key_overrides = NULL;
-    } else if (os_name == OS_WINDOWS) {
-        key_overrides = win_gui_overrides;
+        selected_overrides = NULL;
+    } else if (strcmp(application_name, "WindowsGUI") == 0) {
+        selected_overrides = win_gui_overrides;
     } else {
-        key_overrides = linux_gui_overrides;
+        // その他のデフォルト設定（Linux GUI）を使用
+        selected_overrides = linux_gui_overrides;
+    }
+
+    // 選択したオーバーライドセットを key_overrides にコピー
+    if (selected_overrides) {
+        for (int i = 0; i < MAX_OVERRIDES && selected_overrides[i] != NULL; i++) {
+            key_overrides[i] = selected_overrides[i];
+        }
     }
 }
