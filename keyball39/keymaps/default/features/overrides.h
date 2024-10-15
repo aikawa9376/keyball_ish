@@ -182,7 +182,7 @@ void set_key_overrides(const char *application_name) {
         selected_overrides = win_terminal_overrides;
     } else if (strcmp(application_name, "kitty") == 0) {
         selected_overrides = NULL;
-    } else if (strcmp(application_name, "WindowsGUI") == 0) {
+    } else if (os_name == OS_WINDOWS) {
         selected_overrides = win_gui_overrides;
     } else {
         // その他のデフォルト設定（Linux GUI）を使用
