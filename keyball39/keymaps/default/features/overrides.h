@@ -69,9 +69,9 @@ const key_override_t ko_layer_gui_override_20 = ko_make_basic(0, G(KC_A), C(KC_A
 const key_override_t ko_layer_debug_override_1 = ko_make_basic(MOD_MASK_CTRL, KC_C, C(KC_A));
 
 const key_override_t ko_layer_winterm_override_1 = ko_make_basic(0, G(KC_V), S(KC_INSERT));
-const key_override_t ko_layer_winterm_override_2 = ko_make_basic(MOD_MASK_CTRL, LT(SM, KC_SCLN), G(KC_V));
+const key_override_t ko_layer_winterm_override_2 = ko_make_basic(MOD_MASK_CTRL, KC_SCLN, G(KC_V));
 
-const key_override_t ko_layer_wingui_override_1 = ko_make_basic(MOD_MASK_CTRL, LT(SM, KC_SCLN), G(KC_V));
+const key_override_t ko_layer_wingui_override_1 = ko_make_basic(MOD_MASK_CTRL, KC_SCLN, G(KC_V));
 
 const key_override_t *linux_rofi_overrides[] = {
     &ko_layer_rofi_override_1,
