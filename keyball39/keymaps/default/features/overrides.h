@@ -71,7 +71,7 @@ const key_override_t ko_layer_debug_override_1 = ko_make_basic(MOD_MASK_CTRL, KC
 const key_override_t ko_layer_winterm_override_1 = ko_make_basic(0, G(KC_V), S(KC_INSERT));
 const key_override_t ko_layer_winterm_override_2 = ko_make_basic(MOD_MASK_CTRL, KC_SCLN, G(KC_V));
 
-const key_override_t ko_layer_wingui_override_1 = ko_make_basic(MOD_MASK_CTRL, LT(SM, KC_SCLN, G(KC_V));
+const key_override_t ko_layer_wingui_override_1 = ko_make_basic(MOD_MASK_CTRL, KC_SCLN, G(KC_V));
 
 const key_override_t *linux_rofi_overrides[] = {
     &ko_layer_rofi_override_1,
@@ -178,7 +178,7 @@ void set_key_overrides(const char *application_name) {
         selected_overrides = linux_copyq_overrides;
     } else if (strcmp(application_name, "debug") == 0) {
         selected_overrides = linux_debug_overrides;
-    } else if (strcmp(application_name, "WindowsTerminal") == 0) {
+    } else if (strcmp(application_name, "Windows Terminal Host") == 0) {
         selected_overrides = win_terminal_overrides;
     } else if (strcmp(application_name, "kitty") == 0) {
         selected_overrides = NULL;
