@@ -77,15 +77,15 @@ uint16_t alt_tab_timer = 0;     // we will be using them soon.
 void mouse_button_func(uint16_t keycode, bool regist_flag) {
     switch(keycode) {
         case KC_OG_BTN1: {
-            regist_flag ? register_code(KC_MS_BTN1) : unregister_code(KC_MS_BTN1);
+            regist_flag ? register_code(MS_BTN1) : unregister_code(MS_BTN1);
             break;
         }
         case KC_OG_BTN2: {
-            regist_flag ? register_code(KC_MS_BTN2) : unregister_code(KC_MS_BTN2);
+            regist_flag ? register_code(MS_BTN2) : unregister_code(MS_BTN2);
             break;
         }
         case KC_OG_BTN3: {
-            regist_flag ? register_code(KC_MS_BTN3) : unregister_code(KC_MS_BTN3);
+            regist_flag ? register_code(MS_BTN3) : unregister_code(MS_BTN3);
             break;
         }
         case KC_OG_BTN4: {
@@ -99,14 +99,14 @@ void mouse_button_func(uint16_t keycode, bool regist_flag) {
                     horizontal_flag = 0;
                 }
             } else {
-                // regist_flag ? register_code(KC_MS_BTN4) : unregister_code(KC_MS_BTN4);
+                // regist_flag ? register_code(MS_BTN4) : unregister_code(MS_BTN4);
                 if(regist_flag) {
                     hold_ctrl = true;
                     register_code(KC_RCTL);
                 } else if (is_single_tap) {
                     hold_ctrl = false;
                     unregister_code(KC_RCTL);
-                    tap_code16(KC_MS_BTN4);
+                    tap_code16(MS_BTN4);
                 }
             }
             break;
@@ -122,14 +122,14 @@ void mouse_button_func(uint16_t keycode, bool regist_flag) {
                     horizontal_flag = 0;
                 }
             } else {
-                // regist_flag ? register_code(KC_MS_BTN5) : unregister_code(KC_MS_BTN5);
+                // regist_flag ? register_code(MS_BTN5) : unregister_code(MS_BTN5);
                 if(regist_flag) {
                     hold_ctrl = true;
                     register_code(KC_LCTL);
                 } else if (is_single_tap) {
                     hold_ctrl = false;
                     unregister_code(KC_LCTL);
-                    tap_code16(KC_MS_BTN5);
+                    tap_code16(MS_BTN5);
                 }
             }
             break;
@@ -143,13 +143,13 @@ void disable_click_layer_all_state(void) {
     disable_click_layer();
     keyball_set_scroll_mode(false);
     keyball_set_cpi(KEYBALL_CPI_DEFAULT / 100);
-    unregister_code(KC_MS_BTN2);
+    unregister_code(MS_BTN2);
     unregister_code(KC_RALT);
-    unregister_code(KC_MS_BTN1);
-    unregister_code(KC_MS_BTN2);
-    unregister_code(KC_MS_BTN3);
-    unregister_code(KC_MS_BTN4);
-    unregister_code(KC_MS_BTN5);
+    unregister_code(MS_BTN1);
+    unregister_code(MS_BTN2);
+    unregister_code(MS_BTN3);
+    unregister_code(MS_BTN4);
+    unregister_code(MS_BTN5);
 }
 
 // マクロキーの処理を行う関数
@@ -410,12 +410,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 if (record->event.pressed) {
                     keyball_set_cpi(4);
                     horizontal_flag = 1;
-                    register_code(KC_MS_BTN2);
+                    register_code(MS_BTN2);
                     state = CLICKING;
                 } else {
                     keyball_set_cpi(KEYBALL_CPI_DEFAULT / 100);
                     horizontal_flag = 0;
-                    unregister_code(KC_MS_BTN2);
+                    unregister_code(MS_BTN2);
                     state = CLICKED;
                 }
                 return false;
