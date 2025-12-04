@@ -44,6 +44,7 @@ enum custom_keycodes {
     MC_SPACE,
     MC_ENTER,
     MC_APPN,
+    MC_OSNE,
     MC_ALKL,
     MC_BLKL,
     MC_DATE,
@@ -231,10 +232,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         // Tmuxのプレフィックス
         case MC_TMUX: {
             if (record->event.pressed) {
-                if (os_name == OS_WINDOWS) {
-                    tap_code16(RALT(KC_B));
-                } else {
+                if (os_name == OS_LINUX) {
                     tap_code16(RALT(KC_SPACE));
+                } else {
+                    tap_code16(RALT(KC_B));
                 }
             }
             return false;  // キーのデフォルトの動作をスキップする
@@ -242,10 +243,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         // Tmuxのコピーモード
         case MC_TMCP: {
             if (record->event.pressed) {
-                if (os_name == OS_WINDOWS) {
-                    tap_code16(RALT(KC_B));
-                } else {
+                if (os_name == OS_LINUX) {
                     tap_code16(RALT(KC_SPACE));
+                } else {
+                    tap_code16(RALT(KC_B));
                 }
                 tap_code16(KC_SPACE);
             }
@@ -256,7 +257,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case MC_ALKL: {
             if (record->event.pressed) {
                 register_code16(KC_LSFT);
-                tap_code16(KC_HOME);
+                tap_code16(KC_END);
                 tap_code16(KC_DELETE);
             } else {
                 unregister_code16(KC_LSFT);
@@ -268,7 +269,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case MC_BLKL: {
             if (record->event.pressed) {
                 register_code16(KC_LSFT);
-                tap_code16(KC_END);
+                tap_code16(KC_HOME);
                 tap_code16(KC_DELETE);
             } else {
                 unregister_code16(KC_LSFT);
@@ -369,6 +370,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             if (record->event.pressed) {
                 is_ime_on = true;
                 disable_click_layer();
+            }
+
+            if (os_name == OS_MACOS) {
+                tap_code16(KC_LNG1);
+
+                return false;
             }
 
             return true;
@@ -535,6 +542,18 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             if (record->event.pressed && application_name[0] != '\0' ) {
                 send_string(application_name);
             }
+            return false;
+        }
+        // debug key
+        case MC_OSNE: {
+            if (os_name == OS_WINDOWS) {
+                send_string("win");
+            } else if (os_name == OS_MACOS) {
+                send_string("mac");
+            } else {
+                send_string("other");
+            }
+
             return false;
         }
     }

@@ -19,7 +19,11 @@
 bool ctrl_k(bool key_down, void *context) {
     if (key_down) {
         register_code16(KC_LSFT);
-        tap_code16(KC_END);
+        if (os_name == OS_MACOS) {
+            tap_code16(G(KC_RIGHT));
+        } else {
+            tap_code16(KC_END);
+        }
         tap_code16(KC_BSPC);
     } else {
         unregister_code16(KC_LSFT);
@@ -31,7 +35,11 @@ bool ctrl_k(bool key_down, void *context) {
 bool ctrl_u(bool key_down, void *context) {
     if (key_down) {
         register_code16(KC_LSFT);
-        tap_code16(KC_HOME);
+        if (os_name == OS_MACOS) {
+            tap_code16(G(KC_LEFT));
+        } else {
+            tap_code16(KC_HOME);
+        }
         tap_code16(KC_BSPC);
     } else {
         unregister_code16(KC_LSFT);
@@ -73,8 +81,25 @@ const key_override_t ko_layer_winterm_override_2 = ko_make_basic(MOD_MASK_CTRL, 
 
 const key_override_t ko_layer_wingui_override_1 = ko_make_basic(MOD_MASK_CTRL, KC_SCLN, G(KC_V));
 
+// mac
+const key_override_t ko_mac_copy_override = ko_make_basic(MOD_MASK_CTRL, KC_C, G(KC_C));
+const key_override_t ko_mac_copy2_override = ko_make_basic(0, C(KC_C), G(KC_C));
+const key_override_t ko_mac_paste_override = ko_make_basic(MOD_MASK_CTRL, KC_V, G(KC_V));
+const key_override_t ko_mac_cut_override = ko_make_basic(MOD_MASK_CTRL, KC_X, G(KC_X));
+const key_override_t ko_mac_undo_override = ko_make_basic(MOD_MASK_CTRL, KC_Z, G(KC_Z));
+const key_override_t ko_mac_word_delete_override = ko_make_basic(MOD_MASK_CTRL, KC_W, A(KC_BSPC));
+const key_override_t ko_mac_tab = ko_make_basic(MOD_MASK_CTRL, KC_T, C(S(KC_T)));
+const key_override_t ko_mac_retab = ko_make_basic(MOD_MASK_CS, KC_T, G(S(KC_T)));
+const key_override_t ko_mac_super_reload = ko_make_basic(MOD_MASK_CS, KC_R, G(S(KC_R)));
+const key_override_t ko_mac_raycast_override = ko_make_basic(0, KC_MUTE, G(KC_SPACE));
+
 const key_override_t *linux_rofi_overrides[] = {
     &ko_layer_rofi_override_1,
+    NULL
+};
+
+const key_override_t *linux_mac_kitty_overrides[] = {
+    &ko_mac_raycast_override,
     NULL
 };
 
@@ -158,6 +183,33 @@ const key_override_t *win_terminal_overrides[] = {
     NULL
 };
 
+const key_override_t *mac_gui_overrides[] = {
+    &ko_layer_gui_override_1,
+    &ko_layer_gui_override_2,
+    &ko_layer_gui_override_3,
+    &ko_layer_gui_override_4,
+    &ko_layer_gui_override_5,
+    &ko_layer_gui_override_9,
+    &ko_layer_gui_override_10,
+    &ko_layer_gui_override_11,
+    &ko_layer_gui_override_12,
+    &ko_layer_gui_override_13,
+    &ko_layer_gui_override_14,
+    &ko_layer_gui_override_17,
+    &ko_layer_gui_override_18,
+    &ko_mac_copy_override,
+    &ko_mac_copy2_override,
+    &ko_mac_paste_override,
+    &ko_mac_cut_override,
+    &ko_mac_undo_override,
+    &ko_mac_retab,
+    &ko_mac_super_reload,
+    &ko_mac_raycast_override,
+    &ko_mac_word_delete_override,
+    &ko_mac_tab,
+    NULL
+};
+
 const key_override_t *linux_debug_overrides[] = {
     &ko_layer_debug_override_1,
     NULL
@@ -181,9 +233,15 @@ void set_key_overrides(const char *application_name) {
     } else if (strcmp(application_name, "Windows Terminal Host") == 0) {
         selected_overrides = win_terminal_overrides;
     } else if (strcmp(application_name, "kitty") == 0) {
-        selected_overrides = NULL;
+        if (os_name == OS_MACOS) {
+            selected_overrides = linux_mac_kitty_overrides;
+        } else {
+            selected_overrides = NULL;
+        }
     } else if (os_name == OS_WINDOWS) {
         selected_overrides = win_gui_overrides;
+    } else if (os_name == OS_MACOS) {
+        selected_overrides = mac_gui_overrides;
     } else {
         // その他のデフォルト設定（Linux GUI）を使用
         selected_overrides = linux_gui_overrides;
