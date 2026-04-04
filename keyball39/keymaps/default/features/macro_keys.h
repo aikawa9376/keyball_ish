@@ -181,8 +181,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 if (is_lt4_on) {
                     register_code16(KC_RALT);
                 }
+                register_code16(KC_J);
             } else {
-                tap_code16(KC_J);
+                unregister_code16(KC_J);
                 if (!is_lt4_on) {
                     unregister_code16(KC_RALT);
                 }
@@ -194,8 +195,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 if (is_lt4_on) {
                     register_code16(KC_RALT);
                 }
+                register_code16(KC_K);
             } else {
-                tap_code16(KC_K);
+                unregister_code16(KC_K);
                 if (!is_lt4_on) {
                     unregister_code16(KC_RALT);
                 }
@@ -207,8 +209,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 if (is_lt4_on) {
                     register_code16(KC_RALT);
                 }
+                register_code16(KC_TAB);
             } else {
-                tap_code16(KC_TAB);
+                unregister_code16(KC_TAB);
                 if (!is_lt4_on) {
                     unregister_code16(KC_RALT);
                 }
@@ -220,8 +223,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 if (is_lt4_on) {
                     register_code16(KC_RALT);
                 }
+                register_code16(S(KC_TAB));
             } else {
-                tap_code16(S(KC_TAB));
+                unregister_code16(S(KC_TAB));
                 if (!is_lt4_on) {
                     unregister_code16(KC_RALT);
                 }
