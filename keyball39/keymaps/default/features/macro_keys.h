@@ -322,7 +322,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                     if (click_layer && get_highest_layer(layer_state) == click_layer) {
                         disable_click_layer_all_state();
                     } else {
-                        tap_code16(KC_ESC);
+                        if (os_name == OS_MACOS) {
+                            tap_code16(KC_LNG2);
+                        } else {
+                            tap_code16(KC_INT5);
+                        }
                         if (!is_ime_on) {
                             tap_code16(KC_ESC);
                         }
