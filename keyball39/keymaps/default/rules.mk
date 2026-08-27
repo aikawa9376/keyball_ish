@@ -11,3 +11,19 @@ KEY_OVERRIDE_ENABLE = yes
 LEADER_ENABLE = yes
 
 SRC += lib/naginata/naginata_v15.c
+
+SRC += \
+    features/auto_click_layer.c \
+    features/combo.c \
+    features/leader_key.c \
+    features/macro_keys.c \
+    features/mouse_buttons.c \
+    features/oled.c \
+    features/one_tap_multi_click.c \
+    features/os_detection.c \
+    features/overrides.c \
+    features/raw_hid_handler.c \
+    features/swipe_gesture.c \
+    features/tap_dance.c \
+    features/tap_hold.c \
+    utils/functions.c

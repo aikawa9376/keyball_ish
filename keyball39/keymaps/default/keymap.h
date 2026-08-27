@@ -1,3 +1,5 @@
+#pragma once
+
 enum layers {
     _DEFAULT = 0,
     _NAGINATA,

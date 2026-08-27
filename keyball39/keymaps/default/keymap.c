@@ -19,17 +19,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include QMK_KEYBOARD_H
 
 #include "keymap.h"
-#include "utils/functions.h"
 #include "lib/naginata/naginata.h"
-#include "features/os_detection.h"
-#include "features/overrides.h"
-#include "features/raw_hid_handler.h"
 #include "features/auto_click_layer.h"
-#include "features/one_tap_multi_click.h"
 #include "features/macro_keys.h"
 #include "features/combo.h"
+#include "features/overrides.h"
 #include "features/tap_dance.h"
-#include "features/tap_hold.h"
 
 // clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
