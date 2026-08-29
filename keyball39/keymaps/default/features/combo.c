@@ -12,13 +12,11 @@ const uint16_t PROGMEM space_combo[] = {KC_J, KC_K, COMBO_END};
 const uint16_t PROGMEM enter_combo[] = {KC_D, LT(UT, KC_F), COMBO_END};
 const uint16_t PROGMEM imeon_combo[] = {KC_C, KC_V, COMBO_END};
 const uint16_t PROGMEM escape_combo[] = {LT(UT, KC_F), KC_J, COMBO_END};
-// const uint16_t PROGMEM rctrl_combo[] = {KC_J, KC_K, KC_L, COMBO_END};
 const uint16_t PROGMEM rctrl_combo[] = {KC_J, KC_K, KC_L, COMBO_END};
 const uint16_t PROGMEM lctrl_combo[] = {KC_S, KC_D, LT(UT, KC_F), COMBO_END};
 const uint16_t PROGMEM spacem_combo[] = {KC_OG_BTN1, KC_OG_BTN2, COMBO_END};
 const uint16_t PROGMEM imeonm_combo[] = {KC_OG_BTN4, KC_OG_BTN5, COMBO_END};
 
-// test
 const uint16_t PROGMEM stogg_combo[] = {KC_Z, KC_SLSH, COMBO_END};
 const uint16_t PROGMEM altsp_combo[] = {KC_K, KC_L, COMBO_END};
 const uint16_t PROGMEM altsq_combo[] = {KC_D, KC_S, COMBO_END};
@@ -56,7 +54,6 @@ combo_t key_combos[COMBO_KEY_COUNT] = {
     [CM_MS] = COMBO(spacem_combo, LT(SM, KC_SPACE)),
     [CM_AP] = COMBO(altsp_combo, KC_SCLN),
     [CM_AQ] = COMBO(altsq_combo, KC_SLSH),
-    [CM_ES] = COMBO(escape_combo, MC_ESC),
     [CM_ES] = COMBO(escape_combo, MC_ESC),
     [CM_34] = COMBO(numet_combo, KC_ENTER),
     [CE_VF] = COMBO_ACTION(vimlf_combo),
@@ -146,7 +143,7 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
       if (pressed) {
         if (
             strcmp(application_name, "kitty") == 0 ||
-            strcmp(application_name, "WindowsTerminal") == 0
+            strcmp(application_name, "Windows Terminal Host") == 0
         ) {
             tap_code16(KC_SPACE);
             tap_code16(KC_C);

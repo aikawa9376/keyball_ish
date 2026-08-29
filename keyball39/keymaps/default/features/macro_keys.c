@@ -522,7 +522,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return true;
 }
 
-void matrix_scan_user(void) { // The very important timer.
+void matrix_scan_user(void) {
+    one_tap_multi_click_task();
+
     if (is_alt_tab_active) {
         if (timer_elapsed(alt_tab_timer) > 1000) {
             unregister_code(KC_LALT);

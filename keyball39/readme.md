@@ -1,9 +1,5 @@
 # Keyball39
 
--- TODO --
-- レイヤーに名前をつける
-- raw HID機能を開発
-
 ## Pointing-device tuning
 
 The Keyballish pointing path uses a 2 ms report interval, extended mouse and

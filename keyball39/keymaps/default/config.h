@@ -26,7 +26,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define TAP_CODE_DELAY 5
 #define DYNAMIC_KEYMAP_LAYER_COUNT 7
 
-#define COMBO_COUNT 3
 #define COMBO_MUST_PRESS_IN_ORDER_PER_COMBO
 #define COMBO_MUST_HOLD_PER_COMBO
 
@@ -34,6 +33,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define KEYBALL_CPI_DEFAULT 500      // 光学センサーPMW3360DM の解像度 (CPI) の規定値
 #define KEYBALL_SCROLL_DIV_DEFAULT 6  // スクロール速度の規定値
+#define KEYBALL_MULTI_CLICK_INTERVAL 30
 
 #define TAPPING_TERM 6000
 #define QUICK_TAP_TERM 120
