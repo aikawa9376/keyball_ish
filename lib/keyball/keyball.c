@@ -56,45 +56,205 @@ __attribute__((weak)) void keyball_on_adjust_layout(keyball_adjust_t v) {}
 //////////////////////////////////////////////////////////////////////////////
 // Static utilities
 
+typedef struct {
+    int32_t  remainder_x;
+    int32_t  remainder_y;
+    uint32_t speed_x100;
+    uint32_t last_update;
+    int8_t   sign_x;
+    int8_t   sign_y;
+} keyball_motion_filter_t;
+
+typedef struct {
+    int32_t remainder_x;
+    int32_t remainder_y;
+    uint32_t last_motion;
+    uint8_t  axis_lock;
+} keyball_scroll_filter_t;
+
+static keyball_motion_filter_t this_motion_filter = {0};
+static keyball_motion_filter_t that_motion_filter = {0};
+static keyball_scroll_filter_t this_scroll_filter = {0};
+static keyball_scroll_filter_t that_scroll_filter = {0};
+
 // add16 adds two int16_t with clipping.
 static int16_t add16(int16_t a, int16_t b) {
-    int16_t r = a + b;
-    if (a >= 0 && b >= 0 && r < 0) {
-        r = 32767;
-    } else if (a < 0 && b < 0 && r >= 0) {
-        r = -32768;
-    }
-    return r;
+    int32_t r = (int32_t)a + b;
+    return r < INT16_MIN ? INT16_MIN : r > INT16_MAX ? INT16_MAX : (int16_t)r;
 }
 
-// clip2int8 clips an integer fit into int8_t.
-static inline int8_t clip2int8(int16_t v) {
-    return (v) < -127 ? -127 : (v) > 127 ? 127 : (int8_t)v;
+static uint32_t isqrt32(uint32_t n) {
+    uint32_t result = 0;
+    uint32_t bit    = 1UL << 30;
+
+    while (bit > n) {
+        bit >>= 2;
+    }
+    while (bit != 0) {
+        if (n >= result + bit) {
+            n -= result + bit;
+            result = (result >> 1) + bit;
+        } else {
+            result >>= 1;
+        }
+        bit >>= 2;
+    }
+    return result;
+}
+
+static int8_t sign16(int32_t v) {
+    return v < 0 ? -1 : v > 0 ? 1 : 0;
+}
+
+static int32_t constrain_mouse_xy(int32_t value) {
+    return CONSTRAIN_HID_XY(value);
+}
+
+static int32_t constrain_mouse_hv(int32_t value) {
+    return value < MOUSE_REPORT_HV_MIN ? MOUSE_REPORT_HV_MIN : value > MOUSE_REPORT_HV_MAX ? MOUSE_REPORT_HV_MAX : value;
+}
+
+static uint16_t acceleration_gain(uint32_t speed_x100) {
+#if KEYBALL_ACCEL_ENABLE
+    if (speed_x100 <= KEYBALL_ACCEL_START_X100) {
+        return KEYBALL_ACCEL_MIN_GAIN_X100;
+    }
+    if (speed_x100 >= KEYBALL_ACCEL_END_X100) {
+        return KEYBALL_ACCEL_MAX_GAIN_X100;
+    }
+
+    // Smoothstep interpolation avoids the hard jumps of the old buckets.
+    uint32_t t = (speed_x100 - KEYBALL_ACCEL_START_X100) * 1000U / (KEYBALL_ACCEL_END_X100 - KEYBALL_ACCEL_START_X100);
+    uint32_t s = t * t * (3000U - 2U * t) / 1000000U;
+    return KEYBALL_ACCEL_MIN_GAIN_X100 + ((KEYBALL_ACCEL_MAX_GAIN_X100 - KEYBALL_ACCEL_MIN_GAIN_X100) * s) / 1000U;
+#else
+    (void)speed_x100;
+    return 100;
+#endif
+}
+
+static int32_t apply_gain(int32_t value, uint16_t gain_x100, int32_t *remainder) {
+    int64_t scaled = ((int64_t)value * gain_x100 * 65536) / 100 + *remainder;
+    int32_t output = (int32_t)(scaled / 65536);
+    *remainder     = (int32_t)(scaled - (int64_t)output * 65536);
+
+    int32_t limited = constrain_mouse_xy(output);
+    if (limited != output) {
+        int64_t retained = (int64_t)*remainder + ((int64_t)output - limited) * 65536;
+        *remainder       = retained < INT32_MIN ? INT32_MIN : retained > INT32_MAX ? INT32_MAX : (int32_t)retained;
+    }
+    return limited;
+}
+
+static void reset_motion_filter(keyball_motion_filter_t *filter) {
+    filter->remainder_x = 0;
+    filter->remainder_y = 0;
+    filter->speed_x100  = 0;
+    filter->last_update = 0;
+    filter->sign_x      = 0;
+    filter->sign_y      = 0;
+}
+
+static void adjust_mouse_speed(keyball_motion_t *m, keyball_motion_filter_t *filter, uint32_t now) {
+    uint32_t elapsed = filter->last_update == 0 ? KEYBALL_REPORTMOUSE_INTERVAL : TIMER_DIFF_32(now, filter->last_update);
+    filter->last_update = now;
+
+    if (elapsed == 0) {
+        elapsed = 1;
+    }
+    if (elapsed >= KEYBALL_ACCEL_RESET_TIMER) {
+        filter->speed_x100 = 0;
+        filter->remainder_x = 0;
+        filter->remainder_y = 0;
+        filter->sign_x = 0;
+        filter->sign_y = 0;
+    }
+    if (m->x == 0 && m->y == 0) {
+        return;
+    }
+
+    int8_t sx = sign16(m->x);
+    int8_t sy = sign16(m->y);
+    bool   direction_changed = (sx != 0 && filter->sign_x != 0 && sx != filter->sign_x) || (sy != 0 && filter->sign_y != 0 && sy != filter->sign_y);
+    if (direction_changed) {
+        filter->speed_x100 = 0;
+        if (sx != 0 && sx != filter->sign_x) {
+            filter->remainder_x = 0;
+        }
+        if (sy != 0 && sy != filter->sign_y) {
+            filter->remainder_y = 0;
+        }
+    }
+    if (sx != 0) {
+        filter->sign_x = sx;
+    }
+    if (sy != 0) {
+        filter->sign_y = sy;
+    }
+
+    int32_t  x          = m->x;
+    int32_t  y          = m->y;
+    uint32_t magnitude = isqrt32((uint32_t)((uint64_t)x * x + (uint64_t)y * y));
+    uint32_t cpi        = (uint32_t)keyball_get_cpi() * 100U;
+    uint32_t speed_x100 = (uint32_t)(((uint64_t)magnitude * 100000U) / ((uint64_t)cpi * elapsed));
+
+    if (filter->speed_x100 == 0 || direction_changed) {
+        filter->speed_x100 = speed_x100;
+    } else {
+        // Scalar EMA only; filtering X/Y themselves would add visible lag.
+        filter->speed_x100 = (filter->speed_x100 + speed_x100) / 2U;
+    }
+
+    uint16_t gain = acceleration_gain(filter->speed_x100);
+    m->x          = (int16_t)apply_gain(m->x, gain, &filter->remainder_x);
+    m->y          = (int16_t)apply_gain(m->y, gain, &filter->remainder_y);
+}
+
+static int32_t apply_scroll_axis(int16_t *value, int32_t *remainder, int16_t divisor, uint16_t resolution) {
+    int64_t scaled = (int64_t)*value * resolution + *remainder;
+    int32_t output = (int32_t)(scaled / divisor);
+    *remainder     = (int32_t)(scaled - (int64_t)output * divisor);
+    *value         = 0;
+
+    int32_t limited = constrain_mouse_hv(output);
+    if (limited != output) {
+        int64_t retained = (int64_t)*remainder + ((int64_t)output - limited) * divisor;
+        *remainder       = retained < INT32_MIN ? INT32_MIN : retained > INT32_MAX ? INT32_MAX : (int32_t)retained;
+    }
+    return limited;
+}
+
+static void reset_scroll_filter(keyball_scroll_filter_t *filter) {
+    filter->remainder_x = 0;
+    filter->remainder_y = 0;
+    filter->last_motion = 0;
+    filter->axis_lock   = 0;
 }
 
 #ifdef OLED_ENABLE
-static const char *format_4d(int8_t d) {
+static const char *format_4d(int16_t d) {
     static char buf[5] = {0}; // max width (4) + NUL (1)
+    int32_t     value  = d;
     char        lead   = ' ';
-    if (d < 0) {
-        d    = -d;
+    if (value < 0) {
+        value = -value;
         lead = '-';
     }
-    buf[3] = (d % 10) + '0';
-    d /= 10;
-    if (d == 0) {
+    buf[3] = (value % 10) + '0';
+    value /= 10;
+    if (value == 0) {
         buf[2] = lead;
         lead   = ' ';
     } else {
-        buf[2] = (d % 10) + '0';
-        d /= 10;
+        buf[2] = (value % 10) + '0';
+        value /= 10;
     }
-    if (d == 0) {
+    if (value == 0) {
         buf[1] = lead;
         lead   = ' ';
     } else {
-        buf[1] = (d % 10) + '0';
-        d /= 10;
+        buf[1] = (value % 10) + '0';
+        value /= 10;
     }
     buf[0] = lead;
     return buf;
@@ -131,7 +291,23 @@ bool pointing_device_driver_init(void) {
     keyball.this_have_ball = pmw3360_init();
 #endif
     if (keyball.this_have_ball) {
+#if defined(KEYBALL_PMW3360_UPLOAD_SROM_ID)
+#    if KEYBALL_PMW3360_UPLOAD_SROM_ID == 0x04
+        pmw3360_srom_upload(pmw3360_srom_0x04);
+#    elif KEYBALL_PMW3360_UPLOAD_SROM_ID == 0x81
+        pmw3360_srom_upload(pmw3360_srom_0x81);
+#    else
+#        error Invalid value for KEYBALL_PMW3360_UPLOAD_SROM_ID. Choose 0x04 or 0x81, or leave it undefined.
+#    endif
+        if (pmw3360_srom_id != KEYBALL_PMW3360_UPLOAD_SROM_ID) {
+#if defined(CONSOLE_ENABLE)
+            dprintf("pmw3360: SROM verification failed (expected 0x%02X, got 0x%02X)\n", KEYBALL_PMW3360_UPLOAD_SROM_ID, pmw3360_srom_id);
+#endif
+            return false;
+        }
+#endif
         pmw3360_cpi_set(CPI_DEFAULT - 1);
+        pmw3360_reg_write(pmw3360_Angle_Tune, (uint8_t)KEYBALL_PMW3360_ANGLE_TUNE);
         pmw3360_reg_write(pmw3360_Motion_Burst, 0);
     }
 
@@ -146,40 +322,18 @@ void pointing_device_driver_set_cpi(uint16_t cpi) {
     keyball_set_cpi(cpi);
 }
 
-static void adjust_mouse_speed (keyball_motion_t *m) {
-    int16_t movement_size = abs(m->x) + abs(m->y);
-    float speed_multiplier = 1.0; // EDGE
-
-    if (movement_size > 300){
-        speed_multiplier = 1.5;
-    } else if (movement_size > 150) {
-        speed_multiplier = 1.2;
-    } else if (movement_size > 80) {
-        speed_multiplier = 1.0;
-    } else if (movement_size > 50) {
-        speed_multiplier = 0.8;
-    } else if (movement_size > 30) {
-        speed_multiplier = 0.6;
-    } else if (movement_size > 1) {
-        speed_multiplier = 0.4;
-    }
-    m->x = clip2int8((int16_t) (m->x * speed_multiplier));
-    m->y = clip2int8((int16_t) (m->y * speed_multiplier));
-}
-
-static void motion_to_mouse_move(keyball_motion_t *m, report_mouse_t *r, bool is_left) {
+static void motion_to_mouse_move(keyball_motion_t *m, report_mouse_t *r, bool is_left, keyball_motion_filter_t *filter, uint32_t now) {
+    adjust_mouse_speed(m, filter, now);
 #if KEYBALL_MODEL == 61 || KEYBALL_MODEL == 39 || KEYBALL_MODEL == 147 || KEYBALL_MODEL == 44
-    adjust_mouse_speed (m);
-
-    r->x = clip2int8(m->y);
-    r->y = clip2int8(m->x);
+    r->x = (mouse_xy_report_t)constrain_mouse_xy(m->y);
+    r->y = (mouse_xy_report_t)constrain_mouse_xy(m->x);
     if (is_left) {
         r->x = -r->x;
         r->y = -r->y;
     }
 #elif KEYBALL_MODEL == 46
-    r->x = clip2int8(m->x);
-    r->y = -clip2int8(m->y);
+    r->x = (mouse_xy_report_t)constrain_mouse_xy(m->x);
+    r->y = (mouse_xy_report_t)-constrain_mouse_xy(m->y);
 #else
 #    error("unknown Keyball model")
 #endif
@@ -188,18 +342,41 @@ static void motion_to_mouse_move(keyball_motion_t *m, report_mouse_t *r, bool is
     m->y = 0;
 }
 
-static void motion_to_mouse_scroll(keyball_motion_t *m, report_mouse_t *r, bool is_left) {
-    // consume motion of trackball.
-    uint8_t div = keyball_get_scroll_div() - 1;
-    int16_t x   = m->x >> div;
-    m->x -= x << div;
-    int16_t y = m->y >> div;
-    m->y -= y << div;
+static void motion_to_mouse_scroll(keyball_motion_t *m, report_mouse_t *r, bool is_left, keyball_scroll_filter_t *filter, uint32_t now) {
+    // Consume motion with signed division and retain the exact remainder.
+    int16_t  divisor   = 1 << (keyball_get_scroll_div() - 1);
+    uint16_t resolution = 1;
+#ifdef POINTING_DEVICE_HIRES_SCROLL_ENABLE
+    resolution = pointing_device_get_hires_scroll_resolution();
+#endif
+    int16_t raw_x = m->x;
+    int16_t raw_y = m->y;
+#if KEYBALL_SCROLL_AXIS_LOCK_ENABLE
+    uint32_t elapsed = filter->last_motion == 0 ? 0 : TIMER_DIFF_32(now, filter->last_motion);
+    if (raw_x == 0 && raw_y == 0) {
+        if (elapsed >= KEYBALL_SCROLL_AXIS_LOCK_RESET_TIMER) {
+            filter->axis_lock = 0;
+        }
+    } else {
+        filter->last_motion = now;
+        if (filter->axis_lock == 0) {
+            uint32_t ax = raw_x < 0 ? -(int32_t)raw_x : raw_x;
+            uint32_t ay = raw_y < 0 ? -(int32_t)raw_y : raw_y;
+            if (ay * 100U >= ax * KEYBALL_SCROLL_AXIS_LOCK_RATIO_X100) {
+                filter->axis_lock = 1; // horizontal wheel (sensor Y)
+            } else if (ax * 100U >= ay * KEYBALL_SCROLL_AXIS_LOCK_RATIO_X100) {
+                filter->axis_lock = 2; // vertical wheel (sensor X)
+            }
+        }
+    }
+#endif
+    int32_t x = apply_scroll_axis(&m->x, &filter->remainder_x, divisor, resolution);
+    int32_t y = apply_scroll_axis(&m->y, &filter->remainder_y, divisor, resolution);
 
     // apply to mouse report.
 #if KEYBALL_MODEL == 61 || KEYBALL_MODEL == 39 || KEYBALL_MODEL == 147 || KEYBALL_MODEL == 44
-    r->h = clip2int8(y);
-    r->v = -clip2int8(x);
+    r->h = (mouse_hv_report_t)y;
+    r->v = (mouse_hv_report_t)-x;
     if (is_left) {
         r->h = -r->h;
         r->v = -r->v;
@@ -209,38 +386,55 @@ static void motion_to_mouse_scroll(keyball_motion_t *m, report_mouse_t *r, bool 
     } else if (horizontal_flag == 2) {
         r->v = 0;
     }
+#if KEYBALL_SCROLL_AXIS_LOCK_ENABLE
+    else if (filter->axis_lock == 1) {
+        r->v = 0;
+    } else if (filter->axis_lock == 2) {
+        r->h = 0;
+    }
+#endif
 #elif KEYBALL_MODEL == 46
-    r->h = clip2int8(x);
-    r->v = clip2int8(y);
+    r->h = (mouse_hv_report_t)x;
+    r->v = (mouse_hv_report_t)y;
+#if KEYBALL_SCROLL_AXIS_LOCK_ENABLE
+    if (filter->axis_lock == 1) {
+        r->v = 0;
+    } else if (filter->axis_lock == 2) {
+        r->h = 0;
+    }
+#endif
 #else
 #    error("unknown Keyball model")
 #endif
 
 #if KEYBALL_SCROLLSNAP_ENABLE
     // scroll snap.
-    uint32_t now = timer_read32();
     if (r->h != 0 || r->v != 0) {
         keyball.scroll_snap_last = now;
     } else if (TIMER_DIFF_32(now, keyball.scroll_snap_last) >= KEYBALL_SCROLLSNAP_RESET_TIMER) {
         keyball.scroll_snap_tension_h = 0;
     }
-    if (abs(keyball.scroll_snap_tension_h) < KEYBALL_SCROLLSNAP_TENSION_THRESHOLD) {
-        keyball.scroll_snap_tension_h += y;
+    int32_t threshold = KEYBALL_SCROLLSNAP_TENSION_THRESHOLD;
+#ifdef POINTING_DEVICE_HIRES_SCROLL_ENABLE
+    threshold *= resolution;
+#endif
+    if (abs(keyball.scroll_snap_tension_h) < threshold) {
+        int32_t tension = keyball.scroll_snap_tension_h + y;
+        keyball.scroll_snap_tension_h = tension < INT16_MIN ? INT16_MIN : tension > INT16_MAX ? INT16_MAX : tension;
         r->h = 0;
     }
 #endif
 }
 
-static void motion_to_mouse(keyball_motion_t *m, report_mouse_t *r, bool is_left, bool as_scroll) {
+static void motion_to_mouse(keyball_motion_t *m, report_mouse_t *r, bool is_left, bool as_scroll, keyball_motion_filter_t *motion_filter, keyball_scroll_filter_t *scroll_filter, uint32_t now) {
     if (as_scroll) {
-        motion_to_mouse_scroll(m, r, is_left);
+        motion_to_mouse_scroll(m, r, is_left, scroll_filter, now);
     } else {
-        motion_to_mouse_move(m, r, is_left);
+        motion_to_mouse_move(m, r, is_left, motion_filter, now);
     }
 }
 
-static inline bool should_report(void) {
-    uint32_t now = timer_read32();
+static inline bool should_report(uint32_t now) {
 #if defined(KEYBALL_REPORTMOUSE_INTERVAL) && KEYBALL_REPORTMOUSE_INTERVAL > 0
     // throttling mouse report rate.
     static uint32_t last = 0;
@@ -261,6 +455,7 @@ static inline bool should_report(void) {
 }
 
 report_mouse_t pointing_device_driver_get_report(report_mouse_t rep) {
+    uint32_t now = timer_read32();
     // fetch from optical sensor.
     if (keyball.this_have_ball) {
         pmw3360_motion_t d = {0};
@@ -272,10 +467,10 @@ report_mouse_t pointing_device_driver_get_report(report_mouse_t rep) {
         }
     }
     // report mouse event, if keyboard is primary.
-    if (is_keyboard_master() && should_report()) {
+    if (is_keyboard_master() && should_report(now)) {
         // modify mouse report by PMW3360 motion.
-        motion_to_mouse(&keyball.this_motion, &rep, is_keyboard_left(), keyball.scroll_mode);
-        motion_to_mouse(&keyball.that_motion, &rep, !is_keyboard_left(), keyball.scroll_mode ^ keyball.this_have_ball);
+        motion_to_mouse(&keyball.this_motion, &rep, is_keyboard_left(), keyball.scroll_mode, &this_motion_filter, &this_scroll_filter, now);
+        motion_to_mouse(&keyball.that_motion, &rep, !is_keyboard_left(), keyball.scroll_mode ^ keyball.this_have_ball, &that_motion_filter, &that_scroll_filter, now);
         // store mouse report for OLED.
         keyball.last_mouse = rep;
     }
@@ -511,6 +706,10 @@ bool keyball_get_scroll_mode(void) {
 void keyball_set_scroll_mode(bool mode) {
     if (mode != keyball.scroll_mode) {
         keyball.scroll_mode_changed = timer_read32();
+        reset_motion_filter(&this_motion_filter);
+        reset_motion_filter(&that_motion_filter);
+        reset_scroll_filter(&this_scroll_filter);
+        reset_scroll_filter(&that_scroll_filter);
     }
     keyball.scroll_mode = mode;
 }
@@ -521,6 +720,8 @@ uint8_t keyball_get_scroll_div(void) {
 
 void keyball_set_scroll_div(uint8_t div) {
     keyball.scroll_div = div > SCROLL_DIV_MAX ? SCROLL_DIV_MAX : div;
+    reset_scroll_filter(&this_scroll_filter);
+    reset_scroll_filter(&that_scroll_filter);
 }
 
 uint8_t keyball_get_cpi(void) {
@@ -533,6 +734,8 @@ void keyball_set_cpi(uint8_t cpi) {
     }
     keyball.cpi_value   = cpi;
     keyball.cpi_changed = true;
+    reset_motion_filter(&this_motion_filter);
+    reset_motion_filter(&that_motion_filter);
     if (keyball.this_have_ball) {
         pmw3360_cpi_set(cpi == 0 ? CPI_DEFAULT - 1 : cpi - 1);
         pmw3360_reg_write(pmw3360_Motion_Burst, 0);

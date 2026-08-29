@@ -8,16 +8,6 @@
 #include "macro_keys.h"
 #include "raw_hid_handler.h"
 
-/* Copyright 2023 kamidai (@d_kamiichi)
- *
- * 参考ページ
- * 公式：https://docs.qmk.fm/#/ja/feature_combo?id=%e3%82%b3%e3%83%b3%e3%83%9c
- *
- * 注意： 以下の設定が必要です
- * rules.mk: COMBO_ENABLE = yes
- * config.h: #define COMBO_COUNT 2（=実際に設定するコンボ数）
- */
-
 const uint16_t PROGMEM space_combo[] = {KC_J, KC_K, COMBO_END};
 const uint16_t PROGMEM enter_combo[] = {KC_D, LT(UT, KC_F), COMBO_END};
 const uint16_t PROGMEM imeon_combo[] = {KC_C, KC_V, COMBO_END};

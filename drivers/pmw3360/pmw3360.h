@@ -106,7 +106,8 @@ enum {
 //////////////////////////////////////////////////////////////////////////////
 // Exported values (touch carefully)
 
-/// SROM ID, last uploaded. 0 means not uploaded yet.
+/// SROM ID read during initialization or after the last upload.
+/// 0 means unavailable or not read yet.
 extern uint8_t pmw3360_srom_id;
 
 /// SROM 0x04

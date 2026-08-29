@@ -29,7 +29,68 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 #ifndef KEYBALL_REPORTMOUSE_INTERVAL
-#    define KEYBALL_REPORTMOUSE_INTERVAL 8 // mouse report rate: 125Hz
+#    define KEYBALL_REPORTMOUSE_INTERVAL 2 // mouse report rate: 500Hz
+#endif
+
+// Cursor transfer function.  Gains are expressed as a percentage (x100).
+// The curve is based on physical velocity (in/s), not counts per report.
+#ifndef KEYBALL_ACCEL_ENABLE
+#    define KEYBALL_ACCEL_ENABLE 1
+#endif
+
+#ifndef KEYBALL_ACCEL_MIN_GAIN_X100
+#    define KEYBALL_ACCEL_MIN_GAIN_X100 35
+#endif
+
+#ifndef KEYBALL_ACCEL_MAX_GAIN_X100
+#    define KEYBALL_ACCEL_MAX_GAIN_X100 100
+#endif
+
+#ifndef KEYBALL_ACCEL_START_X100
+#    define KEYBALL_ACCEL_START_X100 100
+#endif
+
+#ifndef KEYBALL_ACCEL_END_X100
+#    define KEYBALL_ACCEL_END_X100 1000
+#endif
+
+#ifndef KEYBALL_ACCEL_RESET_TIMER
+#    define KEYBALL_ACCEL_RESET_TIMER 100
+#endif
+
+#ifndef KEYBALL_SCROLL_AXIS_LOCK_ENABLE
+#    define KEYBALL_SCROLL_AXIS_LOCK_ENABLE 1
+#endif
+
+#ifndef KEYBALL_SCROLL_AXIS_LOCK_RATIO_X100
+#    define KEYBALL_SCROLL_AXIS_LOCK_RATIO_X100 150
+#endif
+
+#ifndef KEYBALL_SCROLL_AXIS_LOCK_RESET_TIMER
+#    define KEYBALL_SCROLL_AXIS_LOCK_RESET_TIMER 100
+#endif
+
+#ifndef KEYBALL_PMW3360_ANGLE_TUNE
+#    define KEYBALL_PMW3360_ANGLE_TUNE 0
+#endif
+
+#if KEYBALL_ACCEL_MIN_GAIN_X100 < 1 || KEYBALL_ACCEL_MIN_GAIN_X100 > 200
+#    error KEYBALL_ACCEL_MIN_GAIN_X100 must be between 1 and 200
+#endif
+#if KEYBALL_ACCEL_MAX_GAIN_X100 < 1 || KEYBALL_ACCEL_MAX_GAIN_X100 > 200
+#    error KEYBALL_ACCEL_MAX_GAIN_X100 must be between 1 and 200
+#endif
+#if KEYBALL_ACCEL_MAX_GAIN_X100 < KEYBALL_ACCEL_MIN_GAIN_X100
+#    error KEYBALL_ACCEL_MAX_GAIN_X100 must not be less than KEYBALL_ACCEL_MIN_GAIN_X100
+#endif
+#if KEYBALL_ACCEL_START_X100 < 0
+#    error Invalid acceleration start velocity
+#endif
+#if KEYBALL_ACCEL_END_X100 <= KEYBALL_ACCEL_START_X100
+#    error KEYBALL_ACCEL_END_X100 must be greater than KEYBALL_ACCEL_START_X100
+#endif
+#if KEYBALL_PMW3360_ANGLE_TUNE < -127 || KEYBALL_PMW3360_ANGLE_TUNE > 127
+#    error KEYBALL_PMW3360_ANGLE_TUNE must be between -127 and 127
 #endif
 
 #ifndef KEYBALL_SCROLLBALL_INHIVITOR
@@ -53,7 +114,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define KEYBALL_TX_GETINFO_INTERVAL 500
 #define KEYBALL_TX_GETINFO_MAXTRY 10
-#define KEYBALL_TX_GETMOTION_INTERVAL 4
+#ifndef KEYBALL_TX_GETMOTION_INTERVAL
+#    define KEYBALL_TX_GETMOTION_INTERVAL 2
+#endif
 
 #if (PRODUCT_ID & 0xff00) == 0x0000
 #    define KEYBALL_MODEL 46
@@ -127,7 +190,7 @@ typedef struct {
     uint8_t  scroll_div;
 
     uint32_t scroll_snap_last;
-    int8_t   scroll_snap_tension_h;
+    int16_t  scroll_snap_tension_h;
 
     uint16_t       last_kc;
     keypos_t       last_pos;

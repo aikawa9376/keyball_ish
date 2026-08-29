@@ -33,7 +33,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define SPI_MOSI_PIN GP23
 #define SPI_USE_MUTUAL_EXCLUSION FALSE
 
-#define POINTING_DEVICE_GESTURES_CURSOR_GLIDE_ENABLE
+// Keep motion and wheel reports lossless enough for the high-rate trackball
+// path.  The custom PMW3360 driver implements its own velocity transfer
+// function, so QMK's generic cursor-glide define is intentionally omitted.
+#define MOUSE_EXTENDED_REPORT
+#define WHEEL_EXTENDED_REPORT
+#define POINTING_DEVICE_HIRES_SCROLL_ENABLE
+#define POINTING_DEVICE_HIRES_SCROLL_MULTIPLIER 120
+
+// Keyball39 cursor feel: keep fine control unchanged, strengthen only fast motion.
+#define KEYBALL_ACCEL_MIN_GAIN_X100 35
+#define KEYBALL_ACCEL_MAX_GAIN_X100 125
+
+// Optional sensor calibration.  Leave SROM upload undefined unless the
+// installed PMW3360 module has been identified as the matching firmware.
+// #define KEYBALL_PMW3360_UPLOAD_SROM_ID 0x04
+// #define KEYBALL_PMW3360_ANGLE_TUNE 0
 
 // Split parameters
 #define SPLIT_HAND_MATRIX_GRID  GP27, GP9

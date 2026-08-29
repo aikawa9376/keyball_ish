@@ -29,6 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define PMW3360_CLOCKS 2000000
 
 static bool motion_bursting = false;
+uint8_t    pmw3360_srom_id  = 0;
 
 bool pmw3360_spi_start(void) {
     return spi_start(PMW3360_CS_PIN, false, PMW3360_SPI_MODE, PMW3360_SPI_DIVISOR);
@@ -149,16 +150,19 @@ bool pmw3360_init(void) {
     // check product ID and revision ID
     uint8_t pid = pmw3360_reg_read(pmw3360_Product_ID);
     uint8_t rev = pmw3360_reg_read(pmw3360_Revision_ID);
+    pmw3360_srom_id = pmw3360_reg_read(pmw3360_SROM_ID);
+#if defined(CONSOLE_ENABLE)
+    dprintf("pmw3360: product=0x%02X revision=0x%02X srom=0x%02X\n", pid, rev, pmw3360_srom_id);
+#endif
     spi_stop();
     return pid == 0x42 && rev == 0x01;
 }
 
-uint8_t pmw3360_srom_id = 0;
-
 void pmw3360_srom_upload(pmw3360_srom_t srom) {
     pmw3360_reg_write(pmw3360_Config2, 0x00);
     pmw3360_reg_write(pmw3360_SROM_Enable, 0x1d);
-    wait_us(10);
+    // tSROM_LOAD, specified by the PMW3360 datasheet as 10 ms.
+    wait_ms(10);
     pmw3360_reg_write(pmw3360_SROM_Enable, 0x18);
 
     // SROM upload (download for PMW3360) with burst mode
