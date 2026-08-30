@@ -23,6 +23,7 @@ SRC += \
     features/os_detection.c \
     features/overrides.c \
     features/raw_hid_handler.c \
+    features/selection_mode.c \
     features/swipe_gesture.c \
     features/tap_dance.c \
     features/tap_hold.c \

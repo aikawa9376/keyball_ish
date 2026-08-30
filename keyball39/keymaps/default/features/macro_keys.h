@@ -33,6 +33,7 @@ enum custom_keycodes {
     KC_OG_BTN3,
     KC_OG_BTN4,
     KC_OG_BTN5,
+    MC_DRAG,
     NG_MON,
     NG_MOFF
 };

@@ -9,6 +9,7 @@
 #include "raw_hid_handler.h"
 #include "macro_keys.h"
 #include "raw_hid.h"
+#include "selection_mode.h"
 
 #include "lib/keyball/keyball.h"
 
@@ -87,6 +88,9 @@ static void mouse_button_func(uint16_t keycode, bool regist_flag) {
 }
 
 static void disable_click_layer_all_state(void) {
+    if (selection_mode_get() == SELECTION_MODE_MOUSE) {
+        selection_mode_stop();
+    }
     state = NONE;
     horizontal_flag = 0;
     disable_click_layer();
@@ -105,6 +109,11 @@ static void disable_click_layer_all_state(void) {
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     if (record->event.pressed) {
+        // Finalize selections before actions that do not extend them.
+        if (keycode != MC_DRAG && selection_mode_should_stop(keycode)) {
+            selection_mode_stop();
+        }
+
         is_single_tap = false;
         // ctrlキー押下時に他キーが押されたらクリックレイヤーを解除
         if (hold_ctrl && click_layer && get_highest_layer(layer_state) == click_layer) {
@@ -114,6 +123,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
 
     switch (keycode) {
+        case MC_DRAG: {
+            if (record->event.pressed) {
+                selection_mode_toggle(get_highest_layer(layer_state) == click_layer);
+            }
+            return false;
+        }
         case LT(UT, KC_F): {
             disable_click_layer();
             if (record->event.pressed) {
@@ -267,6 +282,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 hold_ctrl = false;
                 unregister_code(KC_LCTL);
                 if(is_single_tap) {
+                    selection_mode_stop();
                     if (click_layer && get_highest_layer(layer_state) == click_layer) {
                         disable_click_layer_all_state();
                     } else {
