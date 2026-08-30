@@ -53,6 +53,14 @@ keyball_t keyball = {
 
 __attribute__((weak)) void keyball_on_adjust_layout(keyball_adjust_t v) {}
 
+__attribute__((weak)) uint16_t keyball_get_scroll_resolution(void) {
+#ifdef POINTING_DEVICE_HIRES_SCROLL_ENABLE
+    return pointing_device_get_hires_scroll_resolution();
+#else
+    return 1;
+#endif
+}
+
 //////////////////////////////////////////////////////////////////////////////
 // Static utilities
 
@@ -345,13 +353,10 @@ static void motion_to_mouse_move(keyball_motion_t *m, report_mouse_t *r, bool is
 static void motion_to_mouse_scroll(keyball_motion_t *m, report_mouse_t *r, bool is_left, keyball_scroll_filter_t *filter, uint32_t now) {
     // Consume motion with signed division and retain the exact remainder.
     int16_t  divisor   = 1 << (keyball_get_scroll_div() - 1);
-    uint16_t resolution = 1;
-#ifdef POINTING_DEVICE_HIRES_SCROLL_ENABLE
-    resolution = pointing_device_get_hires_scroll_resolution();
-#endif
-    int16_t raw_x = m->x;
-    int16_t raw_y = m->y;
+    uint16_t resolution = keyball_get_scroll_resolution();
 #if KEYBALL_SCROLL_AXIS_LOCK_ENABLE
+    int16_t  raw_x   = m->x;
+    int16_t  raw_y   = m->y;
     uint32_t elapsed = filter->last_motion == 0 ? 0 : TIMER_DIFF_32(now, filter->last_motion);
     if (raw_x == 0 && raw_y == 0) {
         if (elapsed >= KEYBALL_SCROLL_AXIS_LOCK_RESET_TIMER) {

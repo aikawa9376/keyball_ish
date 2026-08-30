@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 #define KEYBALL_SCROLLSNAP_ENABLE 0  // scrollsnapをオフにする
+#define KEYBALL_SCROLL_AXIS_LOCK_ENABLE 0  // SCRL_MOでは縦横を同時にスクロールする
 #define NO_ACTION_ONESHOT  // 392バイト
 
 #define TAP_CODE_DELAY 5

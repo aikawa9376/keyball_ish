@@ -229,7 +229,8 @@ void set_key_overrides(const char *application_name) {
     // アプリケーション名に基づいて、使用するオーバーライドセットを選択
     if (strcmp(application_name, "Rofi") == 0) {
         selected_overrides = linux_rofi_overrides;
-    } else if (strcmp(application_name, "copyq") == 0) {
+    } else if (strcmp(application_name, "copyq") == 0 ||
+               strcmp(application_name, "com.github.hluk.copyq") == 0) {
         selected_overrides = linux_copyq_overrides;
     } else if (strcmp(application_name, "debug") == 0) {
         selected_overrides = linux_debug_overrides;

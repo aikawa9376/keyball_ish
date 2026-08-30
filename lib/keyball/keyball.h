@@ -242,6 +242,10 @@ uint8_t keyball_get_scroll_div(void);
 // TODO: document
 void keyball_set_scroll_div(uint8_t div);
 
+// Returns the scale applied to raw scroll motion. Keymaps may override this
+// when a host does not support the advertised HID resolution multiplier.
+uint16_t keyball_get_scroll_resolution(void);
+
 // TODO: document
 uint8_t keyball_get_cpi(void);
 
