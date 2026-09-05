@@ -51,10 +51,29 @@ bool ctrl_u(bool key_down, void *context) {
     return false;
 }
 
+static bool copyq_enter_without_lingering_ctrl(bool key_down, void *context) {
+    if (!key_down) {
+        del_mods(MOD_MASK_CTRL);
+    }
+
+    return true;
+}
+
 // linux
 const key_override_t ko_layer_rofi_override_1 = ko_make_basic(0, KC_MUTE, C(KC_TAB));
 
-const key_override_t ko_layer_copyq_override_1 = ko_make_basic(MOD_MASK_CTRL, KC_M, KC_ENT);
+const key_override_t ko_layer_copyq_override_1 = {
+    .trigger_mods      = MOD_MASK_CTRL,
+    .layers            = ~0,
+    .suppressed_mods   = MOD_MASK_CTRL,
+    .options           = ko_option_activation_trigger_down | ko_option_no_reregister_trigger,
+    .negative_mod_mask = (uint8_t) ~MOD_MASK_CTRL,
+    .custom_action     = copyq_enter_without_lingering_ctrl,
+    .context           = NULL,
+    .trigger           = KC_M,
+    .replacement       = KC_ENT,
+    .enabled           = NULL,
+};
 
 const key_override_t ko_layer_gui_override_1 = ko_make_basic(MOD_MASK_CTRL, KC_B, KC_LEFT);
 const key_override_t ko_layer_gui_override_2 = ko_make_basic(MOD_MASK_CTRL, LT(UT, KC_F), KC_RIGHT);
