@@ -10,6 +10,7 @@
 #include "macro_keys.h"
 #include "raw_hid.h"
 #include "selection_mode.h"
+#include "clipboard_hid.h"
 
 #include "lib/keyball/keyball.h"
 
@@ -109,6 +110,7 @@ static void disable_click_layer_all_state(void) {
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     if (record->event.pressed) {
+        if (keycode != MC_CPST) clipboard_hid_cancel_paste();
         // Finalize selections before actions that do not extend them.
         if (keycode != MC_DRAG && selection_mode_should_stop(keycode)) {
             selection_mode_stop();
@@ -123,6 +125,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
 
     switch (keycode) {
+        case MC_CSTR:
+            if (record->event.pressed) clipboard_hid_store();
+            return false;
+        case MC_CPST:
+            clipboard_hid_paste(record->event.pressed);
+            return false;
         case MC_DRAG: {
             if (record->event.pressed) {
                 selection_mode_toggle(get_highest_layer(layer_state) == click_layer);
@@ -540,6 +548,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
 void matrix_scan_user(void) {
     one_tap_multi_click_task();
+    clipboard_hid_task();
 
     if (is_alt_tab_active) {
         if (timer_elapsed(alt_tab_timer) > 1000) {
