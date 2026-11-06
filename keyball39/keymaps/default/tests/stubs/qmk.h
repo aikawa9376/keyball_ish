@@ -11,3 +11,4 @@ uint16_t timer_elapsed(uint16_t started);
 uint8_t get_mods(void);
 uint8_t get_weak_mods(void);
 void tap_code16(uint16_t keycode);
+void keyboard_post_init_user(void);

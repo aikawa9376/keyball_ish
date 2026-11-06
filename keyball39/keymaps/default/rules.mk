@@ -15,6 +15,7 @@ SRC += lib/naginata/naginata_v15.c
 SRC += \
     features/auto_click_layer.c \
     features/clipboard_hid.c \
+    features/clipboard_storage.c \
     features/combo.c \
     features/leader_key.c \
     features/macro_keys.c \

@@ -1,6 +1,8 @@
 /* Host regression tests; compiler invocation is documented in readme.md. */
 #include "qmk.h"
 #include "usb_device_state.h"
+#include "eeprom.h"
+#include "wear_leveling.h"
 #include "../features/clipboard_hid.h"
 #include <assert.h>
 #include <stdio.h>
@@ -13,6 +15,45 @@ static uint16_t clock_ms, pasted_key;
 static uint8_t mods;
 static unsigned paste_count, packet_count;
 static uint8_t packets[40][32];
+static uint8_t flash[TOTAL_EEPROM_BYTE_COUNT], cache[TOTAL_EEPROM_BYTE_COUNT];
+static unsigned write_count;
+static int write_budget = -1;
+
+wear_leveling_status_t wear_leveling_read(uint32_t address, void *value, size_t length) {
+    assert(address + length <= sizeof(cache));
+    memcpy(value, cache + address, length);
+    return WEAR_LEVELING_SUCCESS;
+}
+wear_leveling_status_t wear_leveling_write(uint32_t address, const void *value, size_t length) {
+    assert(address >= 1024 && address + length <= 1856);
+    ++write_count;
+    // Match QMK's cache-before-flash behavior, including a failed flash write.
+    if (memcmp(cache + address, value, length) == 0) return WEAR_LEVELING_SUCCESS;
+    memcpy(cache + address, value, length);
+    for (size_t i = 0; i < length; ++i) {
+        if (write_budget == 0) return WEAR_LEVELING_FAILED;
+        flash[address + i] = ((const uint8_t *)value)[i];
+        if (write_budget > 0) --write_budget;
+    }
+    return WEAR_LEVELING_CONSOLIDATED;
+}
+
+static void reboot(void) {
+    memcpy(cache, flash, sizeof(cache));
+    write_budget = -1;
+    packet_count = 0;
+    keyboard_post_init_user();
+    assert(packet_count == 0); // Boot must neither send clipboard packets nor paste.
+}
+
+static void expect_no_slot(void) {
+    packet_count = 0;
+    clipboard_hid_paste(true);
+    clock_ms += 4;
+    clipboard_hid_task();
+    clipboard_hid_paste(false);
+    assert(packet_count == 0);
+}
 
 uint16_t timer_read(void) { return clock_ms; }
 uint16_t timer_elapsed(uint16_t started) { return clock_ms - started; }
@@ -64,11 +105,16 @@ static uint8_t download(const uint8_t *expected, unsigned length) {
     return packets[0][1];
 }
 int main(void) {
+    // Virgin flash must not synthesize an empty clipboard or a paste.
+    memset(flash, 0xff, sizeof(flash));
+    reboot();
+    expect_no_slot();
     uint8_t text[400];
     for (unsigned i = 0; i < sizeof(text); i += 4) memcpy(text + i, "\xf0\x9f\x98\x80", 4);
     uint8_t token = request_store();
     upload(token, text, sizeof(text));
     assert(packets[packet_count - 1][0] == CLIPBOARD_STORE_STATUS && packets[packet_count - 1][2] == 0);
+    reboot(); // RAM is rebuilt from EEPROM before the first paste.
     token = download(text, sizeof(text));
     receive(CLIPBOARD_PASTE_READY, token + 1, 0, NULL, 0);
     clipboard_hid_paste(false);
@@ -135,5 +181,58 @@ int main(void) {
     clipboard_hid_paste(false);
     tick(1);
     assert(paste_count == 2);
+
+    // All failed/invalid uploads above must leave the durable slot intact too.
+    reboot();
+    download(text, sizeof(text));
+    unsigned previous_writes = write_count;
+    upload(request_store(), text, sizeof(text));
+    assert(packets[packet_count - 1][2] == 0 && write_count == previous_writes);
+
+    // Two records allow fallback when the latest record is corrupt.
+    const uint8_t next[] = "next PC\n\xe6\x97\xa5\xe6\x9c\xac\xe8\xaa\x9e";
+    upload(request_store(), next, sizeof(next) - 1);
+    reboot();
+    download(next, sizeof(next) - 1);
+    uint8_t baseline[sizeof(flash)];
+    memcpy(baseline, flash, sizeof(flash));
+    flash[1024 + 416 + 16] ^= 1; // Damage newest payload (CRC must reject it).
+    reboot();
+    download(text, sizeof(text));
+    memset(flash + 1024, 0, 832); // Missing/invalid markers must also be rejected.
+    reboot();
+    expect_no_slot();
+
+    // Cut every changed byte of a third save, including its final commit marker.
+    // The previous committed slot must survive every simulated interruption.
+    const uint8_t replacement[] = "replacement";
+    for (int cut = 0; cut < 420; ++cut) {
+        memcpy(flash, baseline, sizeof(flash));
+        reboot();
+        write_budget = cut;
+        upload(request_store(), replacement, sizeof(replacement) - 1);
+        if (packets[packet_count - 1][2] == 1) {
+            download(next, sizeof(next) - 1); // Failed save preserves live RAM.
+            unsigned failed_writes = write_count;
+            write_budget = -1;
+            upload(request_store(), replacement, sizeof(replacement) - 1);
+            assert(packets[packet_count - 1][2] == 1 && write_count == failed_writes);
+            reboot();
+            download(next, sizeof(next) - 1);
+        } else {
+            reboot();
+            download(replacement, sizeof(replacement) - 1);
+        }
+        assert(memcmp(flash, baseline, 1024) == 0);
+        assert(memcmp(flash + 1856, baseline + 1856, sizeof(flash) - 1856) == 0);
+    }
+
+    // Clearing by explicitly storing empty text persists across a restart.
+    memcpy(flash, baseline, sizeof(flash));
+    reboot();
+    upload(request_store(), (const uint8_t *)"", 0);
+    assert(packets[packet_count - 1][2] == 0);
+    reboot();
+    download((const uint8_t *)"", 0);
     puts("clipboard HID tests passed");
 }

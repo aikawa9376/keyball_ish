@@ -3,6 +3,7 @@
 #include "raw_hid.h"
 #include "usb_device_state.h"
 #include "clipboard_hid.h"
+#include "clipboard_storage.h"
 #include "os_detection.h"
 #include "raw_hid_handler.h"
 
@@ -60,6 +61,20 @@ static bool valid_text(const uint8_t *text, uint16_t length) {
         if (codepoint < minimum || codepoint > 0x10ffff || (codepoint >= 0xd800 && codepoint <= 0xdfff) || ++count > CLIPBOARD_MAX_CHARS) return false;
     }
     return true;
+}
+
+void keyboard_post_init_user(void) {
+    cancel_transfer();
+    token = 0;
+    paste_pressed = false;
+    usb_cancel = false;
+    text_length = 0;
+    memset(stored_text, 0, sizeof(stored_text));
+    has_text = clipboard_storage_load(stored_text, &text_length) && valid_text((const uint8_t *)stored_text, text_length);
+    if (!has_text) {
+        text_length = 0;
+        memset(stored_text, 0, sizeof(stored_text));
+    }
 }
 
 static void send_status(uint8_t status) {
@@ -133,7 +148,9 @@ void clipboard_hid_receive(const uint8_t *data, uint8_t length) {
         }
         case CLIPBOARD_STORE_COMMIT:
             if (state != RECEIVING) return;
-            if (offset == transfer_length && valid_text((const uint8_t *)incoming_text, transfer_length)) {
+            if (offset == transfer_length && valid_text((const uint8_t *)incoming_text, transfer_length) &&
+                ((has_text && text_length == transfer_length && memcmp(stored_text, incoming_text, transfer_length) == 0) ||
+                 clipboard_storage_save(incoming_text, transfer_length))) {
                 memcpy(stored_text, incoming_text, transfer_length);
                 stored_text[transfer_length] = '\0';
                 text_length = transfer_length;
